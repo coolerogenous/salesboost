@@ -46,6 +46,14 @@
       <text>任务管理</text>
       <text class="arrow">></text>
     </view>
+    <view class="cell" bindtap="goToStaff">
+      <text>员工管理</text>
+      <text class="arrow">></text>
+    </view>
+    <view class="cell" bindtap="handleExport">
+      <text>导出数据报表 (Excel)</text>
+      <text class="arrow">></text>
+    </view>
   </view>
 
   <!-- 积分流水列表 -->

@@ -15,6 +15,7 @@ App({
     },
     globalData: {
         userInfo: null,
-        baseUrl: 'http://localhost:3000/api' // 本地开发地址
+        baseUrl: 'http://localhost:3000/api', // 后端接口地址
+        baseImageUrl: 'http://localhost:3000/uploads' // 图片基础地址
     }
 })

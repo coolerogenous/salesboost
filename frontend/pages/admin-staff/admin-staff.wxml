@@ -1,0 +1,34 @@
+<view class="container">
+  <view class="header">
+    <text class="title">员工管理 ({{staffList.length}})</text>
+    <button class="btn-add" size="mini" bindtap="showAddModal">+ 录入员工</button>
+  </view>
+
+  <view class="staff-list">
+    <block wx:for="{{staffList}}" wx:key="id">
+      <view class="staff-card">
+        <view class="staff-info">
+          <view class="name">{{item.username}}</view>
+          <view class="id">工号：{{item.staff_id}} | 积分：{{item.total_points}}</view>
+        </view>
+        <view class="actions">
+          <text class="btn-delete" bindtap="handleDelete" data-id="{{item.id}}" data-name="{{item.username}}">删除</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <!-- Add Staff Modal -->
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-content">
+      <view class="modal-header">录入新员工</view>
+      <input class="input" placeholder="姓名" bindinput="onInputName" value="{{newName}}" />
+      <input class="input" placeholder="工号" bindinput="onInputId" value="{{newId}}" />
+      <input class="input" placeholder="初始密码" password bindinput="onInputPassword" value="{{newPassword}}" />
+      <view class="modal-footer">
+        <text class="modal-btn cancel" bindtap="hideAddModal">取消</text>
+        <text class="modal-btn confirm" bindtap="handleAddStaff">确定录入</text>
+      </view>
+    </view>
+  </view>
+</view>

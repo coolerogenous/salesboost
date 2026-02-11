@@ -19,7 +19,14 @@ Page({
             header: { 'Authorization': `Bearer ${token}` },
             success: (res) => {
                 if (res.statusCode === 200) {
-                    this.setData({ submissions: res.data });
+                    // 格式化图片地址
+                    const list = res.data.map(item => {
+                        if (item.image_url && !item.image_url.startsWith('http')) {
+                            item.image_url = `${app.globalData.baseImageUrl}/${item.image_url}`;
+                        }
+                        return item;
+                    });
+                    this.setData({ submissions: list });
                 }
             }
         });

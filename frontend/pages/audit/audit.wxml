@@ -12,6 +12,7 @@
         </view>
         <view class="task-name">任务：{{item.task_title}}</view>
         
+        <view class="img-hint">点击图片可放大查看</view>
         <image class="proof-img" src="{{item.image_url}}" mode="aspectFit" bindtap="previewImage" data-url="{{item.image_url}}"></image>
         
         <view class="btn-group">

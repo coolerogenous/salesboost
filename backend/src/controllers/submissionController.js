@@ -79,11 +79,11 @@ exports.reviewSubmission = async (req, res) => {
         await connection.commit();
         res.json({ message: `审核完成: ${status}` });
     } catch (error) {
-        await connection.rollback();
+        if (connection) await connection.rollback();
         console.error('Review submission error:', error);
         res.status(500).json({ message: error.message || '审核处理失败' });
     } finally {
-        connection.release();
+        if (connection) connection.release();
     }
 };
 

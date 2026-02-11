@@ -64,6 +64,43 @@ Page({
     wx.navigateTo({ url: '/pages/admin-tasks/admin-tasks' });
   },
 
+  goToStaff() {
+    wx.navigateTo({ url: '/pages/admin-staff/admin-staff' });
+  },
+
+  handleExport() {
+    const token = wx.getStorageSync('token');
+    wx.showLoading({ title: '正在生成报表...' });
+
+    wx.downloadFile({
+      url: `${app.globalData.baseUrl}/users/export-stats`,
+      header: { 'Authorization': `Bearer ${token}` },
+      success: (res) => {
+        wx.hideLoading();
+        if (res.statusCode === 200) {
+          const filePath = res.tempFilePath;
+          wx.openDocument({
+            filePath: filePath,
+            fileType: 'xlsx',
+            success: () => {
+              console.log('文件打开成功');
+            },
+            fail: (err) => {
+              wx.showToast({ title: '无法打开文件', icon: 'none' });
+              console.error(err);
+            }
+          })
+        } else {
+          wx.showToast({ title: '导出失败', icon: 'none' });
+        }
+      },
+      fail: (err) => {
+        wx.hideLoading();
+        wx.showToast({ title: '网络错误', icon: 'none' });
+      }
+    });
+  },
+
   handleLogout() {
     wx.showModal({
       title: '提示',

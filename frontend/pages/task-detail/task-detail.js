@@ -54,7 +54,7 @@ Page({
             success: (uploadRes) => {
                 const data = JSON.parse(uploadRes.data);
                 if (uploadRes.statusCode === 200) {
-                    const imageUrl = data.url;
+                    const imagePath = data.filename; // 使用返回的文件名（相对路径）
 
                     // 2. 上传成功后提交任务记录
                     wx.showLoading({ title: '正在提交审核...' });
@@ -64,7 +64,7 @@ Page({
                         header: { 'Authorization': `Bearer ${token}` },
                         data: {
                             task_id: this.data.taskId,
-                            image_url: imageUrl
+                            image_url: imagePath
                         },
                         success: (submitRes) => {
                             wx.hideLoading();

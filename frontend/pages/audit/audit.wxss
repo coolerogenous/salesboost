@@ -45,6 +45,13 @@
   margin-bottom: 20rpx;
 }
 
+.img-hint {
+  font-size: 22rpx;
+  color: #07c160;
+  margin-bottom: 10rpx;
+  text-align: right;
+}
+
 .proof-img {
   width: 100%;
   height: 400rpx;
