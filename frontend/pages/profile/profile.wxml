@@ -1,0 +1,69 @@
+<view class="container">
+  <!-- 个人基本信息 -->
+  <view class="user-card">
+    <view class="avatar-box">
+      <view class="avatar">{{userInfo.username[0]}}</view>
+    </view>
+    <view class="info-box">
+      <view class="name">{{userInfo.username}}</view>
+      <view class="staff-id">工号：{{userInfo.staff_id}}</view>
+    </view>
+    <view class="points-box">
+      <view class="point-num">{{userInfo.total_points || 0}}</view>
+      <view class="point-label">当前积分</view>
+    </view>
+  </view>
+
+  <!-- 任务统计 -->
+  <view class="stats-grid">
+    <view class="stat-item">
+      <view class="num">{{stats.total_submissions || 0}}</view>
+      <view class="label">已尝试</view>
+    </view>
+    <view class="stat-item">
+      <view class="num color-green">{{stats.approved_count || 0}}</view>
+      <view class="label">已通过</view>
+    </view>
+    <view class="stat-item">
+      <view class="num color-orange">{{stats.pending_count || 0}}</view>
+      <view class="label">待审核</view>
+    </view>
+    <view class="stat-item">
+      <view class="num color-red">{{stats.rejected_count || 0}}</view>
+      <view class="label">被驳回</view>
+    </view>
+  </view>
+
+  <!-- 管理员入口 -->
+  <view class="section" wx:if="{{userInfo.role === 'admin'}}">
+    <view class="section-title">管理后台</view>
+    <view class="cell" bindtap="goToAudit">
+      <text>审核中心</text>
+      <view class="badge" wx:if="{{stats.pending_count > 0}}">{{stats.pending_count}}</view>
+      <text class="arrow">></text>
+    </view>
+    <view class="cell" bindtap="goToAdminTasks">
+      <text>任务管理</text>
+      <text class="arrow">></text>
+    </view>
+  </view>
+
+  <!-- 积分流水列表 -->
+  <view class="section">
+    <view class="section-title">积分明细</view>
+    <view class="log-list">
+      <block wx:for="{{pointLogs}}" wx:key="id">
+        <view class="log-item">
+          <view class="log-info">
+            <view class="log-type">{{item.task_title || '管理员调整'}}</view>
+            <view class="log-date">{{item.created_at}}</view>
+          </view>
+          <view class="log-amount">+{{item.amount}}</view>
+        </view>
+      </block>
+      <view wx:if="{{pointLogs.length === 0}}" class="empty">暂无积分变动</view>
+    </view>
+  </view>
+
+  <button class="logout-btn" bindtap="handleLogout">退出登录</button>
+</view>

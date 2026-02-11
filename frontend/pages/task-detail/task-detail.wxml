@@ -1,0 +1,29 @@
+<view class="container">
+  <view class="task-header">
+    <view class="title">{{task.title}}</view>
+    <view class="reward">{{task.reward_points}} 积分</view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">主要要求</view>
+    <text class="content">{{task.description}}</text>
+  </view>
+
+  <view class="section">
+    <view class="section-title">上传凭证（截图）</view>
+    <view class="upload-area" bindtap="chooseImage">
+      <block wx:if="{{tempImagePath}}">
+        <image src="{{tempImagePath}}" mode="aspectFit" class="preview-img"></image>
+        <view class="change-tip">点击更换图片</view>
+      </block>
+      <block wx:else>
+        <view class="upload-icon">+</view>
+        <view class="upload-text">点击上传截图</view>
+      </block>
+    </view>
+  </view>
+
+  <view class="footer">
+    <button class="btn-primary" bindtap="submitTask" disabled="{{!tempImagePath}}">立即提交审核</button>
+  </view>
+</view>

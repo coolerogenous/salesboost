@@ -1,0 +1,20 @@
+<view class="container">
+  <view class="header">
+    <text class="title">任务管理</text>
+    <button class="btn-add" size="mini">+ 发布新任务</button>
+  </view>
+
+  <view class="task-list">
+    <block wx:for="{{tasks}}" wx:key="id">
+      <view class="task-item">
+        <view class="main-info">
+          <view class="title">{{item.title}}</view>
+          <view class="subtitle">{{item.reward_points}} 积分 | {{item.status}}</view>
+        </view>
+        <view class="actions">
+          <text class="btn-delete" bindtap="handleDelete" data-id="{{item.id}}">删除</text>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

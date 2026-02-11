@@ -1,0 +1,21 @@
+<view class="container">
+  <view class="header">
+    <text class="greeting">你好，{{userInfo.username}}</text>
+    <text class="points">当前积分: {{userInfo.total_points || 0}}</text>
+  </view>
+
+  <view class="task-list">
+    <block wx:for="{{tasks}}" wx:key="id">
+      <view class="task-card" bindtap="goToDetail" data-id="{{item.id}}">
+        <view class="task-info">
+          <view class="task-title">{{item.title}}</view>
+          <view class="task-reward">+{{item.reward_points}} 积分</view>
+        </view>
+        <view class="task-footer">
+          <text class="deadline">截止: {{item.end_time || '长期'}}</text>
+          <view class="status-btn">认领</view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

@@ -1,0 +1,67 @@
+.rank-header {
+  background-color: #07c160;
+  padding: 60rpx 40rpx;
+  color: white;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rank-title {
+  font-size: 40rpx;
+  font-weight: bold;
+}
+
+.rank-subtitle {
+  font-size: 24rpx;
+  opacity: 0.8;
+  margin-top: 10rpx;
+}
+
+.rank-list {
+  padding: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rank-item {
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  margin-bottom: 2rpx;
+}
+
+.rank-num {
+  width: 60rpx;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #999;
+}
+
+.top-three {
+  color: #ff9800;
+  font-size: 40rpx;
+}
+
+.user-info {
+  flex: 1;
+  margin-left: 20rpx;
+}
+
+.user-info .name {
+  font-size: 30rpx;
+  font-weight: bold;
+}
+
+.user-info .staff-id {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+.points {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #fa5151;
+}

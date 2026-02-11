@@ -1,0 +1,73 @@
+.header {
+  background-color: #07c160;
+  padding: 40rpx;
+  color: white;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.greeting {
+  font-size: 32rpx;
+  display: block;
+}
+
+.points {
+  font-size: 40rpx;
+  font-weight: bold;
+  margin-top: 10rpx;
+  display: block;
+}
+
+.task-list {
+  padding: 20rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.task-card {
+  background-color: #fff;
+  border-radius: 12rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+}
+
+.task-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+}
+
+.task-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  flex: 1;
+}
+
+.task-reward {
+  color: #fa5151;
+  font-weight: bold;
+  margin-left: 20rpx;
+}
+
+.task-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1rpx solid #f6f6f6;
+  padding-top: 20rpx;
+}
+
+.deadline {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.status-btn {
+  background-color: #07c160;
+  color: #fff;
+  padding: 10rpx 30rpx;
+  border-radius: 30rpx;
+  font-size: 24rpx;
+}

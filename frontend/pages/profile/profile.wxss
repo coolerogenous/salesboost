@@ -1,0 +1,167 @@
+.user-card {
+  background-color: #07c160;
+  padding: 60rpx 40rpx;
+  color: white;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.avatar-box {
+  width: 120rpx;
+  height: 120rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar {
+  font-size: 50rpx;
+  font-weight: bold;
+}
+
+.info-box {
+  flex: 1;
+  margin-left: 30rpx;
+}
+
+.info-box .name {
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
+.info-box .staff-id {
+  font-size: 24rpx;
+  opacity: 0.8;
+  margin-top: 10rpx;
+}
+
+.points-box {
+  text-align: right;
+}
+
+.point-num {
+  font-size: 44rpx;
+  font-weight: bold;
+}
+
+.point-label {
+  font-size: 20rpx;
+  opacity: 0.8;
+}
+
+.stats-grid {
+  display: flex;
+  background-color: #fff;
+  padding: 30rpx 0;
+  margin-bottom: 20rpx;
+  width: 100%;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  border-right: 1rpx solid #f0f0f0;
+}
+
+.stat-item:last-child {
+  border-right: none;
+}
+
+.stat-item .num {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.stat-item .label {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 6rpx;
+}
+
+.color-green { color: #07c160; }
+.color-orange { color: #ff9800; }
+.color-red { color: #fa5151; }
+
+.section {
+  background-color: #fff;
+  width: 100%;
+  margin-top: 20rpx;
+}
+
+.section-title {
+  padding: 30rpx;
+  font-size: 30rpx;
+  font-weight: bold;
+  border-bottom: 2rpx solid #f8f8f8;
+}
+
+.cell {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f8f8f8;
+  font-size: 28rpx;
+}
+
+.cell:active {
+  background-color: #f9f9f9;
+}
+
+.arrow {
+  color: #ccc;
+  font-size: 24rpx;
+}
+
+.badge {
+  background-color: #fa5151;
+  color: #fff;
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 20rpx;
+  margin-left: auto;
+  margin-right: 20rpx;
+}
+
+.log-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f8f8f8;
+}
+
+.log-type {
+  font-size: 28rpx;
+}
+
+.log-date {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 6rpx;
+}
+
+.log-amount {
+  color: #fa5151;
+  font-weight: bold;
+  font-size: 32rpx;
+}
+
+.empty {
+  text-align: center;
+  padding: 60rpx;
+  color: #ccc;
+  font-size: 26rpx;
+}
+
+.logout-btn {
+  margin: 60rpx 40rpx;
+  background-color: #fff;
+  color: #fa5151;
+  border: 1rpx solid #fa5151;
+  border-radius: 8rpx;
+}

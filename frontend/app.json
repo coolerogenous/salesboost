@@ -1,0 +1,38 @@
+{
+    "pages": [
+        "pages/login/login",
+        "pages/index/index",
+        "pages/task-detail/task-detail",
+        "pages/profile/profile",
+        "pages/ranking/ranking",
+        "pages/audit/audit",
+        "pages/admin-tasks/admin-tasks"
+    ],
+    "window": {
+        "backgroundTextStyle": "light",
+        "navigationBarBackgroundColor": "#07c160",
+        "navigationBarTitleText": "SalesBoost 助销助手",
+        "navigationBarTextStyle": "white"
+    },
+    "tabBar": {
+        "color": "#7A7E83",
+        "selectedColor": "#07c160",
+        "borderStyle": "black",
+        "backgroundColor": "#ffffff",
+        "list": [
+            {
+                "pagePath": "pages/index/index",
+                "text": "任务大厅"
+            },
+            {
+                "pagePath": "pages/ranking/ranking",
+                "text": "排行榜"
+            },
+            {
+                "pagePath": "pages/profile/profile",
+                "text": "个人中心"
+            }
+        ]
+    },
+    "sitemapLocation": "sitemap.json"
+}

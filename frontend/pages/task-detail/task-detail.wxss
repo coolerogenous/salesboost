@@ -1,0 +1,82 @@
+.container {
+  padding: 30rpx;
+  background-color: #f8f8f8;
+  min-height: 100vh;
+}
+
+.task-header {
+  background-color: #fff;
+  padding: 40rpx;
+  border-radius: 16rpx;
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.task-header .title {
+  font-size: 38rpx;
+  font-weight: bold;
+}
+
+.task-header .reward {
+  font-size: 48rpx;
+  color: #fa5151;
+  font-weight: bold;
+  margin-top: 20rpx;
+}
+
+.section {
+  background-color: #fff;
+  padding: 30rpx;
+  border-radius: 16rpx;
+  margin-bottom: 30rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  border-left: 8rpx solid #07c160;
+  padding-left: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.content {
+  color: #666;
+  line-height: 1.6;
+}
+
+.upload-area {
+  width: 100%;
+  height: 400rpx;
+  background-color: #f0f0f0;
+  border: 2rpx dashed #ccc;
+  border-radius: 12rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.upload-icon {
+  font-size: 80rpx;
+  color: #999;
+}
+
+.upload-text {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.preview-img {
+  width: 100%;
+  height: 320rpx;
+}
+
+.change-tip {
+  font-size: 24rpx;
+  color: #07c160;
+  margin-top: 10rpx;
+}
+
+.footer {
+  margin-top: 60rpx;
+}
