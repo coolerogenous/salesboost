@@ -6,7 +6,8 @@
         "pages/profile/profile",
         "pages/ranking/ranking",
         "pages/audit/audit",
-        "pages/admin-tasks/admin-tasks"
+        "pages/admin-tasks/admin-tasks",
+        "pages/admin-add-task/admin-add-task"
     ],
     "window": {
         "backgroundTextStyle": "light",

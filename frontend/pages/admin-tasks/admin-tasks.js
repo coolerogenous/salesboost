@@ -22,6 +22,12 @@ Page({
         });
     },
 
+    goToAddTask() {
+        wx.navigateTo({
+            url: '/pages/admin-add-task/admin-add-task',
+        });
+    },
+
     handleDelete(e) {
         const id = e.currentTarget.dataset.id;
         wx.showModal({

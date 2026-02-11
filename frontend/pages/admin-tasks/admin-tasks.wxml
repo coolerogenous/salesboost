@@ -1,7 +1,7 @@
 <view class="container">
   <view class="header">
     <text class="title">任务管理</text>
-    <button class="btn-add" size="mini">+ 发布新任务</button>
+    <button class="btn-add" size="mini" bindtap="goToAddTask">+ 发布新任务</button>
   </view>
 
   <view class="task-list">

@@ -1,0 +1,31 @@
+<view class="container">
+  <view class="form-card">
+    <view class="form-item">
+      <view class="label">任务标题</view>
+      <input class="input" placeholder="请输入任务标题" bindinput="onTitleInput" value="{{title}}" />
+    </view>
+
+    <view class="form-item">
+      <view class="label">描述/要求</view>
+      <textarea class="textarea" placeholder="请输入任务详情，如图文要求、转发文案等" bindinput="onDescriptionInput" value="{{description}}" maxlength="1000"></textarea>
+    </view>
+
+    <view class="form-item">
+      <view class="label">奖励积分</view>
+      <input class="input" type="number" placeholder="请输入奖励积分值" bindinput="onPointsInput" value="{{reward_points}}" />
+    </view>
+
+    <view class="form-item">
+      <view class="label">截止日期 (可选)</view>
+      <picker mode="date" value="{{end_date}}" start="2024-01-01" bindchange="onDateChange">
+        <view class="picker">
+          {{end_date || '选择截止日期'}}
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="footer">
+    <button class="btn-primary" bindtap="handleSubmit">发布任务</button>
+  </view>
+</view>
