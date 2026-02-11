@@ -24,6 +24,18 @@ exports.submitTask = async (req, res) => {
         res.status(500).json({ message: '提交失败' });
     }
 };
+// 员工获取自己的提交记录
+exports.getMySubmissions = async (req, res) => {
+    try {
+        const [list] = await db.execute(
+            'SELECT id, task_id, status, submitted_at FROM submissions WHERE user_id = ?',
+            [req.user.id]
+        );
+        res.json(list);
+    } catch (error) {
+        res.status(500).json({ message: '获取提交记录失败' });
+    }
+};
 
 // 管理员审核提交
 exports.reviewSubmission = async (req, res) => {

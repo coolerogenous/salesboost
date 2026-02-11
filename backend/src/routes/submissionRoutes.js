@@ -4,6 +4,7 @@ const submissionController = require('../controllers/submissionController');
 const { authMiddleware, adminMiddleware } = require('../middlewares/auth');
 
 router.post('/submit', authMiddleware, submissionController.submitTask);
+router.get('/my', authMiddleware, submissionController.getMySubmissions);
 router.get('/pending', authMiddleware, adminMiddleware, submissionController.getPendingSubmissions);
 router.post('/review', authMiddleware, adminMiddleware, submissionController.reviewSubmission);
 

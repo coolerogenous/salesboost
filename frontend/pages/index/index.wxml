@@ -13,9 +13,16 @@
         </view>
         <view class="task-footer">
           <text class="deadline">截止: {{item.end_time || '长期'}}</text>
-          <view class="status-btn">认领</view>
+          <view wx:if="{{item.submissionStatus === 'approved'}}" class="status-tag approved">已通过</view>
+          <view wx:elif="{{item.submissionStatus === 'pending'}}" class="status-tag pending">待审核</view>
+          <view wx:elif="{{item.submissionStatus === 'rejected'}}" class="status-tag rejected">被驳回</view>
+          <view wx:else class="status-btn">认领</view>
         </view>
       </view>
     </block>
+    <view wx:if="{{tasks.length === 0}}" class="empty">
+      <view class="empty-icon">📋</view>
+      <view class="empty-text">暂无任务，请等待管理员发布</view>
+    </view>
   </view>
 </view>

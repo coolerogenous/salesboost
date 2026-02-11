@@ -1,19 +1,31 @@
 <view class="container">
   <view class="rank-header">
     <view class="rank-title">积分排行榜</view>
-    <view class="rank-subtitle">看看谁是推广之星</view>
+    <view class="tab-bar">
+      <view class="tab {{activeTab === 'total' ? 'active' : ''}}" bindtap="switchTab" data-tab="total">总榜</view>
+      <view class="tab {{activeTab === 'weekly' ? 'active' : ''}}" bindtap="switchTab" data-tab="weekly">周榜</view>
+    </view>
+  </view>
+
+  <!-- 我的排名 -->
+  <view class="my-rank" wx:if="{{myRank > 0}}">
+    <text>我的排名：第 {{myRank}} 名</text>
   </view>
 
   <view class="rank-list">
     <block wx:for="{{rankingList}}" wx:key="staff_id">
-      <view class="rank-item">
+      <view class="rank-item {{item.isMe ? 'is-me' : ''}}">
         <view class="rank-num {{index < 3 ? 'top-three' : ''}}">{{index + 1}}</view>
         <view class="user-info">
           <view class="name">{{item.username}}</view>
           <view class="staff-id">{{item.staff_id}}</view>
         </view>
-        <view class="points">{{item.total_points}} 分</view>
+        <view class="points">{{activeTab === 'weekly' ? item.weekly_points : item.total_points}} 分</view>
       </view>
     </block>
+    <view wx:if="{{rankingList.length === 0}}" class="empty">
+      <view class="empty-icon">🏆</view>
+      <view class="empty-text">{{activeTab === 'weekly' ? '本周暂无积分数据' : '暂无排行数据'}}</view>
+    </view>
   </view>
 </view>

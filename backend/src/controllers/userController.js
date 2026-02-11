@@ -107,21 +107,47 @@ exports.exportStats = async (req, res) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('员工积分排名');
 
-        // 定义表头
+        // 定义表头 (PRD: 员工号、姓名、总积分、任务完成率、排名)
         worksheet.columns = [
+            { header: '排名', key: 'rank', width: 8 },
             { header: '工号', key: 'staff_id', width: 15 },
             { header: '姓名', key: 'username', width: 15 },
             { header: '总积分', key: 'total_points', width: 12 },
-            { header: '入职时间', key: 'created_at', width: 25 }
+            { header: '已提交任务', key: 'submitted', width: 12 },
+            { header: '通过数', key: 'approved', width: 10 },
+            { header: '完成率', key: 'completion_rate', width: 12 },
         ];
 
-        // 获取数据
+        // 获取数据 (带统计)
         const [rows] = await db.execute(
-            'SELECT staff_id, username, total_points, created_at FROM users WHERE role = "employee" ORDER BY total_points DESC'
+            `SELECT u.staff_id, u.username, u.total_points,
+                    COUNT(s.id) as submitted,
+                    SUM(CASE WHEN s.status = 'approved' THEN 1 ELSE 0 END) as approved
+             FROM users u
+             LEFT JOIN submissions s ON u.id = s.user_id
+             WHERE u.role = 'employee'
+             GROUP BY u.id
+             ORDER BY u.total_points DESC`
         );
 
-        // 添加数据
+        // 添加排名和完成率
+        rows.forEach((row, index) => {
+            row.rank = index + 1;
+            row.completion_rate = row.submitted > 0
+                ? Math.round((row.approved / row.submitted) * 100) + '%'
+                : '0%';
+        });
+
         worksheet.addRows(rows);
+
+        // 美化表头
+        worksheet.getRow(1).font = { bold: true };
+        worksheet.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF07C160' }
+        };
+        worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
 
         // 设置响应头
         res.setHeader(

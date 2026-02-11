@@ -1,10 +1,5 @@
 App({
     onLaunch: function () {
-        // 展示本地存储能力
-        var logs = wx.getStorageSync('logs') || []
-        logs.unshift(Date.now())
-        wx.setStorageSync('logs', logs)
-
         // 检查登录状态
         const token = wx.getStorageSync('token');
         if (!token) {
@@ -13,6 +8,34 @@ App({
             })
         }
     },
+
+    // 全局请求拦截器：处理 401 未授权
+    request(options) {
+        const token = wx.getStorageSync('token');
+        const originalSuccess = options.success;
+
+        options.header = Object.assign({}, options.header, {
+            'Authorization': `Bearer ${token}`
+        });
+
+        options.success = (res) => {
+            if (res.statusCode === 401) {
+                // Token过期或无效，清除数据跳回登录
+                wx.clearStorageSync();
+                wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' });
+                setTimeout(() => {
+                    wx.reLaunch({ url: '/pages/login/login' });
+                }, 1500);
+                return;
+            }
+            if (originalSuccess) {
+                originalSuccess(res);
+            }
+        };
+
+        wx.request(options);
+    },
+
     globalData: {
         userInfo: null,
         baseUrl: 'http://localhost:3000/api', // 后端接口地址
