@@ -1,3 +1,4 @@
+/* page background is already white */
 .header {
   padding: 30rpx;
   background-color: #fff;
@@ -6,38 +7,45 @@
   align-items: center;
   width: 100%;
   box-sizing: border-box;
+  border-bottom: 2rpx solid #eee;
 }
 
 .header .title {
-  font-size: 32rpx;
-  font-weight: bold;
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #000;
 }
 
 .btn-add {
-  background-color: #07c160;
+  background-color: #000 !important;
   color: #fff;
-  margin: 0 !important;
+  padding: 10rpx 30rpx !important;
+  border-radius: 4rpx !important;
+  font-weight: bold;
+  font-size: 26rpx;
 }
 
 .staff-list {
-  padding: 20rpx;
+  padding: 30rpx;
   width: 100%;
   box-sizing: border-box;
 }
 
 .staff-card {
   background-color: #fff;
-  padding: 30rpx;
+  padding: 40rpx;
   margin-bottom: 20rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 12rpx;
+  border: 2rpx solid #eee;
+  border-radius: 8rpx;
 }
 
 .staff-info .name {
-  font-size: 30rpx;
-  font-weight: bold;
+  font-size: 32rpx;
+  font-weight: 800;
+  color: #000;
 }
 
 .staff-info .id {
@@ -103,7 +111,7 @@
 }
 
 .modal-btn.confirm {
-  color: #07c160;
+  color: #000;
 }
 
 .modal-btn.cancel {

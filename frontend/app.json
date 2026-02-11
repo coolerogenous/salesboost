@@ -11,15 +11,15 @@
         "pages/admin-staff/admin-staff"
     ],
     "window": {
-        "backgroundTextStyle": "light",
-        "navigationBarBackgroundColor": "#07c160",
+        "backgroundTextStyle": "dark",
+        "navigationBarBackgroundColor": "#ffffff",
         "navigationBarTitleText": "SalesBoost 助销助手",
-        "navigationBarTextStyle": "white"
+        "navigationBarTextStyle": "black"
     },
     "tabBar": {
-        "color": "#7A7E83",
-        "selectedColor": "#07c160",
-        "borderStyle": "black",
+        "color": "#999999",
+        "selectedColor": "#000000",
+        "borderStyle": "white",
         "backgroundColor": "#ffffff",
         "list": [
             {

@@ -1,23 +1,27 @@
+/* page background is already white */
 .login-container {
-  padding: 60rpx;
+  padding: 80rpx 60rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   background-color: #fff;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .logo {
-  width: 160rpx;
-  height: 160rpx;
-  margin-top: 100rpx;
-  margin-bottom: 40rpx;
+  width: 180rpx;
+  height: 180rpx;
+  margin-top: 120rpx;
+  margin-bottom: 60rpx;
+  filter: grayscale(100%); /* 确保logo也是黑白风格，如果logo本身有颜色 */
 }
 
 .title {
-  font-size: 36rpx;
-  font-weight: bold;
-  margin-bottom: 60rpx;
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #000;
+  margin-bottom: 80rpx;
+  letter-spacing: 2rpx;
 }
 
 .form-group {
@@ -26,16 +30,28 @@
 
 .input {
   width: 100%;
-  height: 90rpx;
-  border-bottom: 1rpx solid #eee;
-  margin-bottom: 30rpx;
-  padding: 0 20rpx;
+  height: 100rpx;
+  border-bottom: 2rpx solid #eee;
+  margin-bottom: 40rpx;
+  padding: 0 10rpx;
   box-sizing: border-box;
+  font-size: 30rpx;
+  color: #000;
 }
 
+.input-placeholder {
+  color: #ccc;
+}
+
+/* 按钮样式由 app.wxss .btn-primary 覆盖，但在 login 页可能需要特殊调整 */
 .btn-primary {
   width: 100%;
   margin-top: 60rpx;
+  background-color: #000 !important; /* 强制黑色 */
+  border-radius: 4rpx;
+  height: 90rpx;
+  line-height: 90rpx;
+  padding: 0;
 }
 
 .tips {

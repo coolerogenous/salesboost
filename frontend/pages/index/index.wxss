@@ -1,62 +1,81 @@
+/* page background is already white from app.wxss */
+
 .header {
-  background-color: #07c160;
+  background-color: #ffffff;
   padding: 40rpx;
-  color: white;
+  color: #000000;
   width: 100%;
   box-sizing: border-box;
+  border-bottom: 2rpx solid #f0f0f0;
 }
 
 .greeting {
-  font-size: 32rpx;
+  font-size: 48rpx;
+  font-weight: 800;
   display: block;
+  margin-bottom: 10rpx;
+  letter-spacing: -1rpx;
 }
 
 .points {
-  font-size: 40rpx;
-  font-weight: bold;
-  margin-top: 10rpx;
+  font-size: 28rpx;
+  color: #666666;
+  font-weight: normal;
   display: block;
 }
 
 .task-list {
-  padding: 20rpx;
+  padding: 30rpx;
   width: 100%;
   box-sizing: border-box;
 }
 
 .task-card {
-  background-color: #fff;
-  border-radius: 12rpx;
-  padding: 30rpx;
-  margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+  background-color: #ffffff;
+  border: 2rpx solid #eeeeee;
+  border-radius: 8rpx;
+  padding: 40rpx;
+  margin-bottom: 30rpx;
+  box-shadow: none; /* 去除阴影，扁平化 */
+  transition: all 0.2s;
+}
+
+.task-card:active {
+  background-color: #fafafa;
 }
 
 .task-info {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20rpx;
+  margin-bottom: 30rpx;
 }
 
 .task-title {
-  font-size: 30rpx;
+  font-size: 34rpx;
   font-weight: bold;
+  color: #000;
   flex: 1;
+  line-height: 1.4;
 }
 
 .task-reward {
-  color: #fa5151;
+  color: #000; /* 积分也黑白，或者微调 */
   font-weight: bold;
+  font-size: 34rpx;
   margin-left: 20rpx;
+  background: #f0f0f0;
+  padding: 4rpx 16rpx;
+  border-radius: 4rpx;
+  font-size: 24rpx;
 }
 
 .task-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1rpx solid #f6f6f6;
-  padding-top: 20rpx;
+  border-top: 2rpx solid #f8f8f8;
+  padding-top: 30rpx;
 }
 
 .deadline {
@@ -64,34 +83,40 @@
   color: #999;
 }
 
+/* 按钮样式调整 */
 .status-btn {
-  background-color: #07c160;
+  background-color: #000000;
   color: #fff;
-  padding: 10rpx 30rpx;
-  border-radius: 30rpx;
-  font-size: 24rpx;
+  padding: 14rpx 40rpx;
+  border-radius: 4rpx;
+  font-size: 26rpx;
+  font-weight: bold;
 }
 
+/* 状态标签 - 保持一定色彩用于区分，但调低饱和度或用黑白 */
 .status-tag {
   padding: 8rpx 24rpx;
-  border-radius: 30rpx;
+  border-radius: 4rpx;
   font-size: 22rpx;
   font-weight: bold;
 }
 
 .status-tag.approved {
-  background-color: #e8f5e9;
-  color: #07c160;
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border: 2rpx solid #dcfce7;
 }
 
 .status-tag.pending {
-  background-color: #fff8e1;
-  color: #ff9800;
+  background-color: #fffbeb;
+  color: #d97706;
+  border: 2rpx solid #fef3c7;
 }
 
 .status-tag.rejected {
-  background-color: #fce4ec;
-  color: #fa5151;
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 2rpx solid #fee2e2;
 }
 
 .empty {
