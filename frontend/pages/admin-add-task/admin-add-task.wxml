@@ -23,6 +23,21 @@
         </view>
       </picker>
     </view>
+
+    <view class="form-item">
+      <view class="label">示例图片 (可选，最多9张)</view>
+      <view class="image-grid">
+        <block wx:for="{{images}}" wx:key="*this">
+          <view class="image-item">
+            <image src="{{config.baseImageUrl || 'http://localhost:3000/uploads'}}/{{item}}" mode="aspectFill" class="thumb"></image>
+            <view class="del-btn" catchtap="deleteImage" data-index="{{index}}">×</view>
+          </view>
+        </block>
+        <view class="upload-btn" bindtap="chooseImage" wx:if="{{images.length < 9}}">
+          <text>+</text>
+        </view>
+      </view>
+    </view>
   </view>
 
   <view class="footer">

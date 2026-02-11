@@ -79,11 +79,12 @@
 }
 
 .rank-num {
-  width: 60rpx;
+  width: 80rpx;
   font-size: 36rpx;
   font-weight: 800;
   color: #000;
-  font-style: italic;
+  text-align: center;
+  margin-right: 10rpx;
 }
 
 .top-three {

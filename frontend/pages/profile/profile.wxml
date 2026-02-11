@@ -50,9 +50,46 @@
       <text>员工管理</text>
       <text class="arrow">></text>
     </view>
+    <view class="cell" bindtap="handleExportPreview">
+      <text>导出数据预览</text>
+      <text class="arrow">></text>
+    </view>
     <view class="cell" bindtap="handleExport">
       <text>导出数据报表 (Excel)</text>
       <text class="arrow">></text>
+    </view>
+  </view>
+
+  <!-- Export Preview Modal -->
+  <view class="modal" wx:if="{{showExportPreview}}">
+    <view class="modal-content large">
+      <view class="modal-header">
+        <text class="modal-title">数据预览 (Top 50)</text>
+        <text class="close-btn" bindtap="closeExportPreview">×</text>
+      </view>
+      <scroll-view scroll-x="true" scroll-y="true" class="table-scroll">
+        <view class="table">
+          <view class="tr header">
+            <view class="th">排名</view>
+            <view class="th">工号</view>
+            <view class="th">姓名</view>
+            <view class="th">积分</view>
+            <view class="th">完成率</view>
+          </view>
+          <block wx:for="{{previewData}}" wx:key="staff_id">
+            <view class="tr">
+              <view class="td">{{item.rank}}</view>
+              <view class="td">{{item.staff_id}}</view>
+              <view class="td">{{item.username}}</view>
+              <view class="td">{{item.total_points}}</view>
+              <view class="td">{{item.completion_rate}}</view>
+            </view>
+          </block>
+        </view>
+      </scroll-view>
+      <view class="modal-footer">
+        <button class="btn-primary" bindtap="handleExport">确认导出 Excel</button>
+      </view>
     </view>
   </view>
 

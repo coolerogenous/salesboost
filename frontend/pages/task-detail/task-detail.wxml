@@ -7,19 +7,40 @@
   <view class="section">
     <view class="section-title">主要要求</view>
     <text class="content">{{task.description}}</text>
+    
+    <!-- 示例图片展示 -->
+    <view class="example-images" wx:if="{{task.imageList && task.imageList.length > 0}}">
+      <view class="sub-title">示例图片：</view>
+      <scroll-view scroll-x="true" class="scroll-view">
+        <view class="scroll-container">
+          <block wx:for="{{task.imageList}}" wx:key="*this">
+            <image src="{{config.baseImageUrl || 'http://localhost:3000/uploads'}}/{{item}}" mode="aspectFill" class="example-img" data-src="{{item}}" bindtap="previewExampleImage"></image>
+          </block>
+        </view>
+      </scroll-view>
+    </view>
   </view>
 
   <view class="section">
-    <view class="section-title">上传凭证（截图）</view>
-    <view class="upload-area" bindtap="chooseImage">
-      <block wx:if="{{tempImagePath}}">
-        <image src="{{tempImagePath}}" mode="aspectFit" class="preview-img"></image>
-        <view class="change-tip">点击更换图片</view>
+    <view class="section-title">提交内容</view>
+    
+    <!-- 文本备注 -->
+    <view class="form-group">
+      <textarea class="textarea" placeholder="填写备注信息（可选）..." bindinput="onInputText" value="{{textContent}}" maxlength="500"></textarea>
+    </view>
+
+    <!-- 图片上传 -->
+    <view class="sub-title">上传凭证（至少一张）</view>
+    <view class="image-grid">
+      <block wx:for="{{images}}" wx:key="*this">
+        <view class="image-item">
+          <image src="{{config.baseImageUrl || 'http://localhost:3000/uploads'}}/{{item}}" mode="aspectFill" class="thumb"></image>
+          <view class="del-btn" catchtap="deleteImage" data-index="{{index}}">×</view>
+        </view>
       </block>
-      <block wx:else>
-        <view class="upload-icon">+</view>
-        <view class="upload-text">点击上传截图</view>
-      </block>
+      <view class="upload-btn" bindtap="chooseImage" wx:if="{{images.length < 9}}">
+        <text>+</text>
+      </view>
     </view>
   </view>
 

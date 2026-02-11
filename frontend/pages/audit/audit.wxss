@@ -50,6 +50,19 @@
   font-weight: bold;
 }
 
+.remarks {
+  font-size: 28rpx;
+  color: #333;
+  margin-bottom: 20rpx;
+  background: #f9f9f9;
+  padding: 20rpx;
+  border-radius: 8rpx;
+}
+
+.remarks .label {
+  font-weight: bold;
+}
+
 .img-hint {
   font-size: 22rpx;
   color: #666;
@@ -58,12 +71,23 @@
   text-decoration: underline;
 }
 
-.proof-img {
+.img-scroll {
   width: 100%;
-  height: 400rpx;
+  white-space: nowrap;
+}
+
+.img-container {
+  display: flex;
+  gap: 20rpx;
+}
+
+.proof-img {
+  width: 200rpx;
+  height: 200rpx;
   border-radius: 4rpx;
   background-color: #f8f8f8;
   border: 2rpx solid #eee;
+  flex-shrink: 0;
 }
 
 .btn-group {

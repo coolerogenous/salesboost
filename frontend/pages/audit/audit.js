@@ -21,8 +21,20 @@ Page({
                 if (res.statusCode === 200) {
                     // 格式化图片地址
                     const list = res.data.map(item => {
-                        if (item.image_url && !item.image_url.startsWith('http')) {
-                            item.image_url = `${app.globalData.baseImageUrl}/${item.image_url}`;
+                        // 处理多图
+                        if (item.images) {
+                            try {
+                                const imgs = JSON.parse(item.images);
+                                item.imageList = imgs.map(img => `${app.globalData.baseImageUrl}/${img}`);
+                            } catch (e) {
+                                item.imageList = [];
+                            }
+                        } else if (item.image_url) {
+                            // 兼容旧数据
+                            const url = item.image_url.startsWith('http') ? item.image_url : `${app.globalData.baseImageUrl}/${item.image_url}`;
+                            item.imageList = [url];
+                        } else {
+                            item.imageList = [];
                         }
                         return item;
                     });
@@ -33,8 +45,11 @@ Page({
     },
 
     previewImage(e) {
+        const current = e.currentTarget.dataset.url;
+        const urls = e.currentTarget.dataset.urls || [current];
         wx.previewImage({
-            urls: [e.currentTarget.dataset.url],
+            current: current,
+            urls: urls,
         });
     },
 

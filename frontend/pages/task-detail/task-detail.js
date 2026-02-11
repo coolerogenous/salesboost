@@ -3,7 +3,8 @@ const app = getApp();
 Page({
     data: {
         task: {},
-        tempImagePath: '',
+        images: [], // Proof images
+        textContent: '',
         taskId: null
     },
 
@@ -19,78 +20,104 @@ Page({
             header: { 'Authorization': `Bearer ${token}` },
             success: (res) => {
                 if (res.statusCode === 200) {
-                    this.setData({ task: res.data });
+                    const task = res.data;
+                    // Parse example images if exists
+                    if (task.images && typeof task.images === 'string') {
+                        try {
+                            task.imageList = JSON.parse(task.images);
+                        } catch (e) {
+                            task.imageList = [];
+                        }
+                    }
+                    this.setData({ task });
                 }
             }
         });
     },
 
+    onInputText(e) {
+        this.setData({ textContent: e.detail.value });
+    },
+
     chooseImage() {
         wx.chooseMedia({
-            count: 1,
+            count: 9,
             mediaType: ['image'],
             sourceType: ['album', 'camera'],
             success: (res) => {
-                this.setData({
-                    tempImagePath: res.tempFiles[0].tempFilePath
-                });
+                const tempFiles = res.tempFiles;
+                this.uploadImages(tempFiles);
             }
         })
     },
 
+    uploadImages(files) {
+        const token = wx.getStorageSync('token');
+        const uploadPromises = files.map(file => {
+            return new Promise((resolve, reject) => {
+                wx.uploadFile({
+                    url: `${app.globalData.baseUrl}/upload/image`,
+                    filePath: file.tempFilePath,
+                    name: 'image',
+                    header: { 'Authorization': `Bearer ${token}` },
+                    success: (res) => {
+                        const data = JSON.parse(res.data);
+                        resolve(data.filename);
+                    },
+                    fail: reject
+                });
+            });
+        });
+
+        Promise.all(uploadPromises).then(filenames => {
+            this.setData({
+                images: this.data.images.concat(filenames)
+            });
+        }).catch(err => {
+            wx.showToast({ title: '上传失败', icon: 'none' });
+        });
+    },
+
+    deleteImage(e) {
+        const index = e.currentTarget.dataset.index;
+        const images = this.data.images;
+        images.splice(index, 1);
+        this.setData({ images });
+    },
+
     submitTask() {
         const token = wx.getStorageSync('token');
+        const { taskId, images, textContent } = this.data;
 
-        wx.showLoading({ title: '正在上传图片...' });
+        if (images.length === 0) {
+            wx.showToast({ title: '请至少上传一张图片', icon: 'none' });
+            return;
+        }
 
-        // 1. 先上传文件到服务器
-        wx.uploadFile({
-            url: `${app.globalData.baseUrl}/upload/image`,
-            filePath: this.data.tempImagePath,
-            name: 'image',
-            header: {
-                'Authorization': `Bearer ${token}`
+        wx.showLoading({ title: '正在提交...' });
+        wx.request({
+            url: `${app.globalData.baseUrl}/submissions/submit`,
+            method: 'POST',
+            header: { 'Authorization': `Bearer ${token}` },
+            data: {
+                task_id: taskId,
+                images: images,
+                text_content: textContent
             },
-            success: (uploadRes) => {
-                const data = JSON.parse(uploadRes.data);
-                if (uploadRes.statusCode === 200) {
-                    const imagePath = data.filename; // 使用返回的文件名（相对路径）
-
-                    // 2. 上传成功后提交任务记录
-                    wx.showLoading({ title: '正在提交审核...' });
-                    wx.request({
-                        url: `${app.globalData.baseUrl}/submissions/submit`,
-                        method: 'POST',
-                        header: { 'Authorization': `Bearer ${token}` },
-                        data: {
-                            task_id: this.data.taskId,
-                            image_url: imagePath
-                        },
-                        success: (submitRes) => {
-                            wx.hideLoading();
-                            if (submitRes.statusCode === 201) {
-                                wx.showToast({ title: '提交成功' });
-                                setTimeout(() => {
-                                    wx.navigateBack();
-                                }, 1500);
-                            } else {
-                                wx.showToast({ title: submitRes.data.message || '提交失败', icon: 'none' });
-                            }
-                        },
-                        fail: () => {
-                            wx.hideLoading();
-                            wx.showToast({ title: '提交任务记录失败', icon: 'none' });
-                        }
-                    });
+            success: (res) => {
+                wx.hideLoading();
+                if (res.statusCode === 201) {
+                    wx.showToast({ title: '提交成功' });
+                    setTimeout(() => {
+                        wx.navigateBack();
+                    }, 1500);
                 } else {
-                    wx.hideLoading();
-                    wx.showToast({ title: data.message || '图片上传失败', icon: 'none' });
+                    wx.showToast({ title: res.data.message || '提交失败', icon: 'none' });
                 }
             },
-            fail: (err) => {
+            fail: () => {
                 wx.hideLoading();
-                wx.showToast({ title: '图片上传失败', icon: 'none' });
-                console.error('Upload error:', err);
+                wx.showToast({ title: '网络错误', icon: 'none' });
             }
         });
     }

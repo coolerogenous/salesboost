@@ -4,7 +4,9 @@ Page({
   data: {
     userInfo: {},
     stats: {},
-    pointLogs: []
+    pointLogs: [],
+    showExportPreview: false,
+    previewData: []
   },
 
   onShow() {
@@ -114,6 +116,35 @@ Page({
         }
       }
     })
+  },
+
+  handleExportPreview() {
+    const token = wx.getStorageSync('token');
+    wx.showLoading({ title: '加载预览...' });
+
+    wx.request({
+      url: `${app.globalData.baseUrl}/users/stats/export-preview`,
+      header: { 'Authorization': `Bearer ${token}` },
+      success: (res) => {
+        wx.hideLoading();
+        if (res.statusCode === 200) {
+          this.setData({
+            previewData: res.data,
+            showExportPreview: true
+          });
+        } else {
+          wx.showToast({ title: '加载失败', icon: 'none' });
+        }
+      },
+      fail: () => {
+        wx.hideLoading();
+        wx.showToast({ title: '网络错误', icon: 'none' });
+      }
+    });
+  },
+
+  closeExportPreview() {
+    this.setData({ showExportPreview: false });
   },
 
   onPullDownRefresh() {

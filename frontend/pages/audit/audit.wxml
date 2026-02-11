@@ -12,8 +12,20 @@
         </view>
         <view class="task-name">任务：{{item.task_title}}</view>
         
-        <view class="img-hint">点击图片可放大查看</view>
-        <image class="proof-img" src="{{item.image_url}}" mode="aspectFit" bindtap="previewImage" data-url="{{item.image_url}}"></image>
+        <!-- 备注信息 -->
+        <view class="remarks" wx:if="{{item.text_content}}">
+          <text class="label">备注：</text>{{item.text_content}}
+        </view>
+
+        <view class="img-hint" wx:if="{{item.imageList.length > 0}}">共 {{item.imageList.length}} 张图片，点击可预览</view>
+        
+        <scroll-view scroll-x="true" class="img-scroll" wx:if="{{item.imageList.length > 0}}">
+          <view class="img-container">
+            <block wx:for="{{item.imageList}}" wx:key="*this" wx:for-item="img">
+              <image class="proof-img" src="{{img}}" mode="aspectFill" bindtap="previewImage" data-url="{{img}}" data-urls="{{item.imageList}}"></image>
+            </block>
+          </view>
+        </scroll-view>
         
         <view class="btn-group">
           <button class="btn-reject" bindtap="showRejectDialog" data-id="{{item.id}}">驳回</button>
