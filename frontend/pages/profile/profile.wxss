@@ -329,6 +329,8 @@
   background-color: #fff;
   color: #fa5151;
   border: 1rpx solid #fa5151;
+  border-radius: 8rpx;
+}
 
 /* Modal Styles */
 .modal {

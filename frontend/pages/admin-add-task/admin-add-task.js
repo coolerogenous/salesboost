@@ -43,7 +43,7 @@ Page({
         const uploadPromises = filePaths.map(filePath => {
             return new Promise((resolve, reject) => {
                 wx.uploadFile({
-                    url: `${app.globalData.baseUrl}/upload`,
+                    url: `${app.globalData.baseUrl}/upload/image`,
                     filePath: filePath,
                     name: 'image',
                     header: { 'Authorization': `Bearer ${token}` },

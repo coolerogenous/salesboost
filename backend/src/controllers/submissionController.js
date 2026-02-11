@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 // 员工提交任务截图
 exports.submitTask = async (req, res) => {
-    const { task_id, image_url } = req.body;
+    const { task_id, images, text_content } = req.body; // images array, text_content string
     const user_id = req.user.id;
 
     try {
@@ -12,10 +12,24 @@ exports.submitTask = async (req, res) => {
             return res.status(404).json({ message: '任务不存在' });
         }
 
+        // 检查是否重复提交
+        const [existing] = await db.execute(
+            'SELECT id FROM submissions WHERE user_id = ? AND task_id = ? AND status = "pending"',
+            [user_id, task_id]
+        );
+        if (existing.length > 0) {
+            return res.status(400).json({ message: '您有一个待审核的提交，请勿重复提交' });
+        }
+
+        const imagesJson = images ? JSON.stringify(images) : '[]';
+        // 兼容旧字段 image_url，取第一张图
+        const mainImage = (images && images.length > 0) ? images[0] : '';
+        const remarks = text_content || '';
+
         // 提交记录
         const [result] = await db.execute(
-            'INSERT INTO submissions (user_id, task_id, image_url) VALUES (?, ?, ?)',
-            [user_id, task_id, image_url]
+            'INSERT INTO submissions (user_id, task_id, image_url, images, text_content) VALUES (?, ?, ?, ?, ?)',
+            [user_id, task_id, mainImage, imagesJson, remarks]
         );
 
         res.status(201).json({ message: '提交成功，请等待审核', submissionId: result.insertId });
