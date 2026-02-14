@@ -20,7 +20,9 @@ export const getTasks = async (req, res) => {
 
 export const createTask = async (req, res) => {
     try {
-        const { title, desc, points, type, deadline, taskImage } = req.body;
+        const { title, desc, points, type, deadline } = req.body;
+        const taskImage = req.file ? `/uploads/${req.file.filename}` : req.body.taskImage; // Allow string url if provided (e.g. edit without changing image)
+
         const task = await prisma.task.create({
             data: {
                 title,
@@ -42,11 +44,18 @@ export const updateTask = async (req, res) => {
     try {
         const { id } = req.params;
         const { title, desc, points, type, deadline, status } = req.body;
+
+        // Prepare data
+        const data = {
+            title, desc, points: parseInt(points), type, deadline, status
+        };
+        if (req.file) {
+            data.taskImage = `/uploads/${req.file.filename}`;
+        }
+
         const task = await prisma.task.update({
             where: { id: parseInt(id) },
-            data: {
-                title, desc, points: parseInt(points), type, deadline, status
-            }
+            data: data
         });
         res.json(task);
     } catch (error) {

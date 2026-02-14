@@ -80,14 +80,8 @@ export default function Login() {
                 </div>
 
                 <div className="pt-6 border-t border-gray-100">
-                    <p className="text-xs text-center text-gray-400 mb-3">—— 快速测试入口 (预设密码: 123456) ——</p>
-                    <div className="grid grid-cols-2 gap-3">
-                        <button onClick={() => { setInputId('1001'); setInputPassword('123456'); }} className="px-3 py-2 bg-gray-100 text-gray-600 text-xs rounded hover:bg-gray-200">
-                            我是员工 (1001)
-                        </button>
-                        <button onClick={() => { setInputId('admin'); setInputPassword('admin'); }} className="px-3 py-2 bg-indigo-50 text-indigo-600 text-xs rounded hover:bg-indigo-100">
-                            我是管理员 (admin)
-                        </button>
+                    <div className="pt-6 border-t border-gray-100">
+                        <p className="text-xs text-center text-gray-400 mb-3">—— 企业内部系统，请使用分配的账号登录 ——</p>
                     </div>
                 </div>
             </div>

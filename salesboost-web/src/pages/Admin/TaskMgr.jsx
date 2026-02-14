@@ -26,16 +26,30 @@ export default function AdminTaskMgr() {
         if (!formData.title) return;
 
         try {
-            const taskData = {
-                ...formData,
-                status: isEditing ? formData.status : 'active'
-            };
+            const data = new FormData();
+            data.append('title', formData.title);
+            data.append('desc', formData.desc);
+            data.append('points', formData.points);
+            data.append('type', formData.type);
+            data.append('deadline', formData.deadline);
+            // status for edit?
+            if (isEditing) data.append('status', formData.status);
+
+            if (formData.taskImage instanceof File) {
+                data.append('image', formData.taskImage);
+            } else if (formData.taskImage === null && isEditing) {
+                // If null and editing, no change to image
+            }
 
             if (isEditing) {
-                await api.put(`/tasks/${formData.id}`, taskData);
+                await api.put(`/tasks/${formData.id}`, data, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
                 alert('任务更新成功');
             } else {
-                await api.post('/tasks', taskData);
+                await api.post('/tasks', data, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
                 alert('任务发布成功');
             }
 
@@ -98,14 +112,25 @@ export default function AdminTaskMgr() {
                             value={formData.desc} onChange={e => setFormData({ ...formData, desc: e.target.value })}
                         />
                         {/* 模拟上传图片 */}
-                        <div
-                            className={`border-2 border-dashed rounded p-3 text-center cursor-pointer ${formData.taskImage ? 'border-indigo-400 bg-indigo-50' : 'border-gray-300'}`}
-                            onClick={() => setFormData({ ...formData, taskImage: formData.taskImage ? null : 'placeholder_url' })}
-                        >
-                            {formData.taskImage ? (
-                                <span className="text-xs text-indigo-600 flex items-center justify-center gap-1"><CheckCircle size={12} /> 已添加示例图 (点击移除)</span>
+                        <div className="w-full h-24 border-2 border-dashed rounded p-3 text-center cursor-pointer relative overflow-hidden flex items-center justify-center border-gray-300 hover:border-indigo-400">
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                onChange={(e) => setFormData({ ...formData, taskImage: e.target.files[0] })}
+                            />
+                            {formData.taskImage instanceof File ? (
+                                <span className="text-xs text-indigo-600 flex items-center justify-center gap-1 font-bold">
+                                    <CheckCircle size={12} /> 已选择: {formData.taskImage.name.substring(0, 15)}...
+                                </span>
+                            ) : formData.taskImage && typeof formData.taskImage === 'string' ? (
+                                <span className="text-xs text-indigo-600 flex items-center justify-center gap-1">
+                                    <CheckCircle size={12} /> 当前已存在图片 (点击替换)
+                                </span>
                             ) : (
-                                <span className="text-xs text-gray-400 flex items-center justify-center gap-1"><ImageIcon size={12} /> 添加任务示例图 (选填)</span>
+                                <span className="text-xs text-gray-400 flex items-center justify-center gap-1">
+                                    <ImageIcon size={12} /> 添加任务示例图 (选填)
+                                </span>
                             )}
                         </div>
 
