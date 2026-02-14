@@ -1,0 +1,1070 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Users, 
+  ClipboardList, 
+  Upload, 
+  CheckCircle, 
+  XCircle, 
+  Trophy, 
+  BarChart3, 
+  Plus, 
+  User, 
+  ShieldCheck,
+  Image as ImageIcon,
+  Clock,
+  Bell,
+  Trash2,
+  Edit,
+  Save,
+  Search,
+  Lock,
+  Eye,
+  EyeOff,
+  FileText,
+  Calendar
+} from 'lucide-react';
+
+// --- 模拟数据 (Mock Data) ---
+
+const MOCK_USERS = [
+  { id: '1001', name: '王销冠', role: 'employee', points: 1250, avatar: '👑', password: '123456' },
+  { id: '1002', name: '李新人', role: 'employee', points: 450, avatar: '👨‍💼', password: '123456' },
+  { id: '1003', name: '张努力', role: 'employee', points: 890, avatar: '👩‍💼', password: '123456' },
+  { id: 'admin', name: '销售总监', role: 'admin', points: 0, avatar: '🛡️', password: 'admin' },
+];
+
+const INITIAL_TASKS = [
+  { 
+    id: 1, 
+    title: '朋友圈转发新品海报', 
+    desc: '请转发最新的夏季新品海报，文案需包含“限时折扣”字样，保留至少4小时。建议配文：🔥夏季必备，限时3天5折起！手慢无！', 
+    points: 50, 
+    deadline: '2023-12-31', 
+    type: '朋友圈',
+    status: 'active',
+    taskImage: null 
+  },
+  { 
+    id: 2, 
+    title: '核心客户群发问候', 
+    desc: '向您的核心A类客户发送周末问候，并附带活动链接。重点强调我们的VIP服务升级。', 
+    points: 30, 
+    deadline: '2023-12-30', 
+    type: '社群',
+    status: 'active',
+    taskImage: null 
+  },
+  { 
+    id: 3, 
+    title: '过期任务示例', 
+    desc: '这是一个已经过期的测试任务。', 
+    points: 10, 
+    deadline: '2023-01-01', 
+    type: '其他',
+    status: 'closed', // 初始状态模拟过期
+    taskImage: null 
+  },
+];
+
+const INITIAL_SUBMISSIONS = [
+  { id: 101, taskId: 1, userId: '1001', userName: '王销冠', status: 'approved', imageUrl: 'placeholder', note: '已转发，点赞超过20个', time: '2023-10-24 10:00' },
+  { id: 102, taskId: 1, userId: '1002', userName: '李新人', status: 'pending', imageUrl: 'placeholder', note: '刚发的，请查收', time: '2023-10-24 11:30' },
+];
+
+// --- 组件部分 ---
+
+export default function SalesBoostApp() {
+  // 全局状态
+  const [currentUser, setCurrentUser] = useState(null);
+  const [users, setUsers] = useState(MOCK_USERS);
+  const [tasks, setTasks] = useState(INITIAL_TASKS);
+  const [submissions, setSubmissions] = useState(INITIAL_SUBMISSIONS);
+  const [activeTab, setActiveTab] = useState('tasks');
+  const [notification, setNotification] = useState(null);
+
+  // 初始化检查任务过期状态
+  useEffect(() => {
+    const checkExpiry = () => {
+      const today = new Date().toISOString().split('T')[0];
+      setTasks(prevTasks => prevTasks.map(task => {
+        if (task.status === 'active' && task.deadline < today) {
+          return { ...task, status: 'closed' };
+        }
+        return task;
+      }));
+    };
+    checkExpiry();
+  }, []);
+
+  // 显示通知
+  const showToast = (msg, type = 'success') => {
+    setNotification({ msg, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
+
+  // 登录处理
+  const handleLogin = (userId, password) => {
+    const user = users.find(u => u.id === userId);
+    
+    if (!user) {
+      showToast('工号不存在，请联系管理员', 'error');
+      return;
+    }
+
+    if (user.password !== password) {
+      showToast('密码错误，请重试', 'error');
+      return;
+    }
+
+    setCurrentUser(user);
+    setActiveTab(user.role === 'admin' ? 'audit' : 'tasks');
+    showToast(`欢迎回来，${user.name}`);
+  };
+
+  // 退出登录
+  const handleLogout = () => {
+    setCurrentUser(null);
+  };
+
+  // 提交任务凭证 (更新：支持备注)
+  const handleSubmitProof = (taskId, note, imageFile) => {
+    const newSubmission = {
+      id: Date.now(),
+      taskId,
+      userId: currentUser.id,
+      userName: currentUser.name,
+      status: 'pending',
+      imageUrl: imageFile ? 'uploaded_image' : 'placeholder', // 模拟图片
+      note: note || '',
+      time: new Date().toLocaleString()
+    };
+    setSubmissions([newSubmission, ...submissions]);
+    showToast('凭证提交成功，等待审核');
+  };
+
+  // 审核任务
+  const handleAudit = (submissionId, status) => {
+    const targetSub = submissions.find(s => s.id === submissionId);
+    if (!targetSub) return;
+
+    // 更新提交状态
+    const updatedSubmissions = submissions.map(s => 
+      s.id === submissionId ? { ...s, status } : s
+    );
+    setSubmissions(updatedSubmissions);
+
+    // 如果通过，加积分
+    if (status === 'approved') {
+      const task = tasks.find(t => t.id === targetSub.taskId);
+      const pointsToAdd = task ? task.points : 0;
+      
+      const updatedUsers = users.map(u => 
+        u.id === targetSub.userId ? { ...u, points: u.points + pointsToAdd } : u
+      );
+      setUsers(updatedUsers);
+      showToast(`审核通过，${targetSub.userName} 积分 +${pointsToAdd}`);
+    } else {
+      showToast('已驳回该申请', 'info');
+    }
+  };
+
+  // 管理员：任务 CRUD
+  const handleCreateTask = (newTask) => {
+    setTasks([{ ...newTask, id: Date.now(), status: 'active' }, ...tasks]);
+    showToast('任务发布成功');
+  };
+
+  const handleUpdateTask = (updatedTask) => {
+    setTasks(tasks.map(t => t.id === updatedTask.id ? updatedTask : t));
+    showToast('任务更新成功');
+  };
+
+  const handleDeleteTask = (taskId) => {
+    if (window.confirm('确定要删除这个任务吗？')) {
+      setTasks(tasks.filter(t => t.id !== taskId));
+      showToast('任务已删除');
+    }
+  };
+
+  // 管理员：人员 CRUD
+  const handleAddUser = (newUser) => {
+    if (users.some(u => u.id === newUser.id)) {
+      showToast('该工号已存在', 'error');
+      return;
+    }
+    const userToAdd = {
+      ...newUser,
+      points: 0,
+      avatar: '👤',
+      password: newUser.password || '123456'
+    };
+    setUsers([...users, userToAdd]);
+    showToast('人员添加成功，初始密码: ' + userToAdd.password);
+  };
+
+  const handleUpdateUser = (updatedUser) => {
+    setUsers(users.map(u => u.id === updatedUser.id ? { ...u, ...updatedUser } : u));
+    showToast('人员信息已更新');
+  };
+
+  const handleDeleteUser = (userId) => {
+    if (window.confirm('确定要删除该人员吗？此操作不可恢复。')) {
+      setUsers(users.filter(u => u.id !== userId));
+      showToast('人员已删除');
+    }
+  };
+
+  // --- 视图渲染 ---
+
+  if (!currentUser) {
+    return <LoginScreen users={users} onLogin={handleLogin} />;
+  }
+
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-100 font-sans text-gray-800">
+      {/* 手机外壳模拟 */}
+      <div className="relative w-full max-w-md h-[850px] bg-gray-50 shadow-2xl overflow-hidden flex flex-col md:rounded-3xl border border-gray-200">
+        
+        {/* 顶部状态栏 */}
+        <div className={`h-14 ${currentUser.role === 'admin' ? 'bg-indigo-900' : 'bg-blue-600'} text-white flex items-center justify-between px-4 shrink-0 shadow-md z-10`}>
+          <div className="font-bold text-lg tracking-wide flex items-center gap-2">
+            {currentUser.role === 'admin' ? <ShieldCheck size={20}/> : <User size={20}/>}
+            {currentUser.role === 'admin' ? '助销云·管理端' : '助销云·员工端'}
+          </div>
+          <button onClick={handleLogout} className="text-xs bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 transition">
+            退出
+          </button>
+        </div>
+
+        {/* 主内容区域 - 可滚动 */}
+        <div className="flex-1 overflow-y-auto no-scrollbar relative bg-gray-50">
+          {currentUser.role === 'employee' ? (
+            <EmployeeView 
+              user={currentUser} 
+              activeTab={activeTab} 
+              tasks={tasks} 
+              submissions={submissions}
+              users={users}
+              onSubmit={handleSubmitProof}
+              showToast={showToast}
+            />
+          ) : (
+            <AdminView 
+              activeTab={activeTab}
+              tasks={tasks}
+              submissions={submissions}
+              users={users}
+              onAudit={handleAudit}
+              onCreateTask={handleCreateTask}
+              onUpdateTask={handleUpdateTask}
+              onDeleteTask={handleDeleteTask}
+              onAddUser={handleAddUser}
+              onUpdateUser={handleUpdateUser}
+              onDeleteUser={handleDeleteUser}
+              showToast={showToast}
+            />
+          )}
+        </div>
+
+        {/* 底部导航栏 */}
+        <BottomNav 
+          role={currentUser.role} 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          pendingCount={submissions.filter(s => s.status === 'pending').length}
+        />
+
+        {/* 全局 Toast 通知 */}
+        {notification && (
+          <div className="absolute top-16 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in-down z-50 flex items-center gap-2">
+            {notification.type === 'success' ? <CheckCircle size={16} className="text-green-400"/> : <Bell size={16} />}
+            {notification.msg}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// --- 登录界面 ---
+function LoginScreen({ users, onLogin }) {
+  const [inputId, setInputId] = useState('');
+  const [inputPassword, setInputPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl space-y-6 m-4">
+        <div className="text-center space-y-2">
+          <div className="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg transform rotate-3">
+            <BarChart3 className="text-white w-8 h-8" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">助销云助手</h1>
+          <p className="text-gray-500 text-sm">企业内部销售效能管理系统</p>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">工号 / Employee ID</label>
+            <div className="relative">
+              <input 
+                type="text" 
+                value={inputId}
+                onChange={(e) => setInputId(e.target.value)}
+                className="w-full pl-4 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition outline-none"
+                placeholder="请输入工号"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">密码 / Password</label>
+            <div className="relative">
+              <input 
+                type={showPassword ? "text" : "password"}
+                value={inputPassword}
+                onChange={(e) => setInputPassword(e.target.value)}
+                className="w-full pl-4 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition outline-none"
+                placeholder="请输入密码"
+              />
+              <button 
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => onLogin(inputId, inputPassword)}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition transform active:scale-95"
+          >
+            安全登录
+          </button>
+        </div>
+
+        <div className="pt-6 border-t border-gray-100">
+          <p className="text-xs text-center text-gray-400 mb-3">—— 快速测试入口 (预设密码: 123456) ——</p>
+          <div className="grid grid-cols-2 gap-3">
+            <button onClick={() => { setInputId('1001'); setInputPassword('123456'); }} className="px-3 py-2 bg-gray-100 text-gray-600 text-xs rounded hover:bg-gray-200">
+              我是员工 (1001)
+            </button>
+            <button onClick={() => { setInputId('admin'); setInputPassword('admin'); }} className="px-3 py-2 bg-indigo-50 text-indigo-600 text-xs rounded hover:bg-indigo-100">
+              我是管理员 (admin)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- 员工视图 ---
+function EmployeeView({ user, activeTab, tasks, submissions, users, onSubmit, showToast }) {
+  if (activeTab === 'tasks') return <EmployeeTaskHall tasks={tasks} submissions={submissions} userId={user.id} onSubmit={onSubmit} showToast={showToast} />;
+  if (activeTab === 'rank') return <Leaderboard users={users} currentUser={user} />;
+  if (activeTab === 'profile') return <EmployeeProfile user={user} submissions={submissions} />;
+  return null;
+}
+
+function EmployeeTaskHall({ tasks, submissions, userId, onSubmit, showToast }) {
+  const [filter, setFilter] = useState('todo'); // todo, done
+
+  const getTaskStatus = (task) => {
+    // 如果任务是关闭状态，且用户没有完成它，那么对用户来说也是不可做的
+    const sub = submissions.find(s => s.taskId === task.id && s.userId === userId);
+    
+    if (task.status === 'closed') {
+      if (!sub) return 'expired'; // 过期未完成
+    }
+
+    if (!sub) return 'unclaimed';
+    return sub.status;
+  };
+
+  const displayedTasks = tasks.filter(task => {
+    const status = getTaskStatus(task);
+    if (filter === 'todo') {
+      // 待办：未领取且任务未过期，或者被驳回
+      return (status === 'unclaimed' && task.status === 'active') || status === 'rejected';
+    }
+    if (filter === 'done') {
+      // 已办：审核中、已通过、或者已过期(未完成也算一种结束状态，看需求，这里暂不显示过期未完成在已办)
+      return status === 'pending' || status === 'approved';
+    }
+    return true;
+  });
+
+  return (
+    <div className="p-4 space-y-4 pb-20">
+      <div className="flex bg-white p-1 rounded-lg shadow-sm border border-gray-100">
+        <button 
+          onClick={() => setFilter('todo')}
+          className={`flex-1 py-2 text-sm font-medium rounded-md transition ${filter === 'todo' ? 'bg-blue-100 text-blue-700' : 'text-gray-500'}`}
+        >
+          待办任务
+        </button>
+        <button 
+          onClick={() => setFilter('done')}
+          className={`flex-1 py-2 text-sm font-medium rounded-md transition ${filter === 'done' ? 'bg-green-100 text-green-700' : 'text-gray-500'}`}
+        >
+          已办/审核
+        </button>
+      </div>
+
+      <div className="space-y-4">
+        {displayedTasks.length === 0 ? (
+          <div className="text-center py-10 text-gray-400">
+            <ClipboardList className="w-12 h-12 mx-auto mb-2 opacity-20" />
+            <p className="text-sm">暂无任务</p>
+          </div>
+        ) : (
+          displayedTasks.map(task => (
+            <TaskCard 
+              key={task.id} 
+              task={task} 
+              status={getTaskStatus(task)} 
+              onSubmit={onSubmit}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TaskCard({ task, status, onSubmit }) {
+  const [isExpanding, setIsExpanding] = useState(false);
+  const [note, setNote] = useState('');
+  const [hasImage, setHasImage] = useState(false); // 模拟是否有图片上传
+
+  const handleSubmit = () => {
+    onSubmit(task.id, note, hasImage);
+    setIsExpanding(false);
+    setNote('');
+    setHasImage(false);
+  };
+
+  return (
+    <div className={`bg-white p-4 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden transition-all duration-300 ${status === 'expired' ? 'opacity-60 bg-gray-50' : ''}`}>
+      <div className="flex justify-between items-start mb-2">
+        <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium border ${status === 'expired' ? 'bg-gray-200 text-gray-500 border-gray-300' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
+          {task.type}
+        </span>
+        <span className="font-bold text-orange-500 flex items-center text-sm">
+          +{task.points} 积分
+        </span>
+      </div>
+      <h3 className="font-bold text-gray-800 text-base mb-1">{task.title}</h3>
+      <p className="text-gray-500 text-xs mb-3 leading-relaxed">{task.desc}</p>
+      
+      {/* 任务图片展示 (如果管理员上传了) */}
+      {task.taskImage && (
+        <div className="mb-3 rounded-lg bg-gray-100 h-24 flex items-center justify-center border border-gray-200">
+          <ImageIcon className="text-gray-400 w-6 h-6 mr-1"/> 
+          <span className="text-gray-400 text-xs">任务示例图</span>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50">
+        <div className="text-xs text-gray-400 flex items-center gap-1">
+          <Clock size={12} /> 截止: {task.deadline}
+        </div>
+
+        {/* 按钮状态逻辑 */}
+        {(status === 'unclaimed' || status === 'rejected') && task.status === 'active' ? (
+           !isExpanding ? (
+            <button onClick={() => setIsExpanding(true)} className="px-4 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg shadow-sm hover:bg-blue-700 active:scale-95 transition">
+              {status === 'rejected' ? '重新提交' : '去完成'}
+            </button>
+           ) : null
+        ) : (
+          <span className={`text-xs font-medium px-2 py-1 rounded flex items-center gap-1 ${
+            status === 'approved' ? 'text-green-600 bg-green-50' : 
+            status === 'expired' ? 'text-gray-500 bg-gray-200' :
+            'text-yellow-600 bg-yellow-50'
+          }`}>
+            {status === 'approved' ? <CheckCircle size={12}/> : 
+             status === 'expired' ? <XCircle size={12}/> : <Clock size={12}/>}
+            {status === 'approved' ? '已通过' : 
+             status === 'expired' ? '已过期' : '审核中'}
+          </span>
+        )}
+      </div>
+
+      {/* 提交表单展开区域 */}
+      {isExpanding && (
+        <div className="mt-3 pt-3 border-t border-blue-100 animate-fade-in-down bg-blue-50/50 rounded-lg p-3">
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">1. 上传截图凭证</label>
+              <button 
+                onClick={() => setHasImage(!hasImage)}
+                className={`w-full h-16 border-2 border-dashed rounded-lg flex flex-col items-center justify-center transition ${hasImage ? 'border-green-400 bg-green-50' : 'border-gray-300 bg-white hover:border-blue-400'}`}
+              >
+                {hasImage ? (
+                  <div className="text-green-600 flex items-center gap-1 text-xs font-bold"><CheckCircle size={14}/> 已选择图片</div>
+                ) : (
+                  <>
+                    <ImageIcon className="text-gray-400 mb-1" size={20} />
+                    <span className="text-xs text-gray-400">点击上传图片</span>
+                  </>
+                )}
+              </button>
+            </div>
+            
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">2. 备注说明 (选填)</label>
+              <textarea 
+                className="w-full text-xs p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 outline-none bg-white"
+                rows="2"
+                placeholder="例如：已群发3个群，共计500人..."
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button onClick={() => setIsExpanding(false)} className="flex-1 py-2 text-xs text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">取消</button>
+              <button 
+                onClick={handleSubmit} 
+                disabled={!hasImage}
+                className={`flex-1 py-2 text-xs text-white rounded-lg shadow flex items-center justify-center gap-1 ${!hasImage ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+              >
+                <Upload size={12} /> 确认提交
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Leaderboard({ users, currentUser }) {
+  const sortedUsers = [...users].filter(u => u.role !== 'admin').sort((a, b) => b.points - a.points);
+
+  return (
+    <div className="pb-20">
+      <div className="bg-blue-600 p-6 pb-12 rounded-b-3xl text-white text-center shadow-lg mb-[-30px]">
+        <h2 className="text-2xl font-bold mb-1">🏆 销冠排行榜</h2>
+        <p className="text-blue-100 text-xs opacity-80">每月1号结算绩效</p>
+      </div>
+
+      <div className="px-4 space-y-3">
+        {sortedUsers.map((u, index) => {
+          const isMe = u.id === currentUser.id;
+          return (
+            <div key={u.id} className={`flex items-center p-4 rounded-xl shadow-sm border ${isMe ? 'bg-yellow-50 border-yellow-200 transform scale-105 ring-2 ring-yellow-100 z-10' : 'bg-white border-gray-100'}`}>
+              <div className={`w-8 font-bold text-center ${index < 3 ? 'text-yellow-500 text-xl italic' : 'text-gray-400'}`}>
+                {index + 1}
+              </div>
+              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-xl mx-3">
+                {u.avatar}
+              </div>
+              <div className="flex-1">
+                <div className="font-bold text-gray-800 text-sm">{u.name} {isMe && <span className="text-xs text-blue-500 font-normal">(我)</span>}</div>
+                <div className="text-xs text-gray-400">工号: {u.id}</div>
+              </div>
+              <div className="font-bold text-blue-600 text-lg">{u.points}</div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  );
+}
+
+function EmployeeProfile({ user, submissions }) {
+  const mySubs = submissions.filter(s => s.userId === user.id);
+  const approvedCount = mySubs.filter(s => s.status === 'approved').length;
+
+  return (
+    <div className="pb-20">
+      <div className="bg-white p-6 mb-4 border-b border-gray-100">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-16 h-16 bg-blue-100 text-4xl rounded-full flex items-center justify-center">
+            {user.avatar}
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>
+            <p className="text-sm text-gray-500">工号: {user.id} | 销售一部</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-blue-50 p-4 rounded-xl text-center">
+            <div className="text-xs text-blue-600 mb-1">当前绩效分</div>
+            <div className="text-2xl font-bold text-blue-700">{user.points}</div>
+          </div>
+          <div className="bg-green-50 p-4 rounded-xl text-center">
+             <div className="text-xs text-green-600 mb-1">已完成任务</div>
+             <div className="text-2xl font-bold text-green-700">{approvedCount}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4">
+        <h3 className="font-bold text-gray-800 mb-3 text-sm">最近动态</h3>
+        <div className="space-y-3">
+          {mySubs.length === 0 ? <p className="text-gray-400 text-xs">暂无记录</p> : mySubs.map(sub => (
+            <div key={sub.id} className="bg-white p-3 rounded-lg border border-gray-100 flex justify-between items-center">
+              <div>
+                <div className="text-sm font-medium text-gray-700">提交了任务 #{sub.taskId}</div>
+                <div className="text-xs text-gray-400">{sub.time}</div>
+              </div>
+              <span className={`text-xs px-2 py-1 rounded ${
+                sub.status === 'approved' ? 'bg-green-100 text-green-700' : 
+                sub.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'
+              }`}>
+                {sub.status === 'approved' ? '审核通过' : sub.status === 'pending' ? '审核中' : '已驳回'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- 管理员视图 ---
+function AdminView(props) {
+  const { activeTab, tasks, submissions, users, onAudit, onCreateTask, onUpdateTask, onDeleteTask, onAddUser, onUpdateUser, onDeleteUser, showToast } = props;
+
+  if (activeTab === 'audit') return <AdminAudit submissions={submissions} onAudit={onAudit} tasks={tasks} />;
+  if (activeTab === 'tasks') return <AdminTaskMgr tasks={tasks} onCreateTask={onCreateTask} onUpdateTask={onUpdateTask} onDeleteTask={onDeleteTask} showToast={showToast} />;
+  if (activeTab === 'users') return <AdminUserMgr users={users} onAddUser={onAddUser} onUpdateUser={onUpdateUser} onDeleteUser={onDeleteUser} />;
+  if (activeTab === 'stats') return <AdminStats users={users} submissions={submissions} />;
+  return null;
+}
+
+function AdminAudit({ submissions, onAudit, tasks }) {
+  const pendingList = submissions.filter(s => s.status === 'pending');
+
+  return (
+    <div className="p-4 pb-20">
+      <h2 className="text-lg font-bold text-gray-800 mb-4 flex items-center justify-between">
+        待审核凭证
+        <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">{pendingList.length}</span>
+      </h2>
+
+      {pendingList.length === 0 ? (
+        <div className="bg-white rounded-xl p-8 text-center shadow-sm">
+          <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+          <p className="text-gray-500">所有任务已审核完毕</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {pendingList.map(sub => {
+            const task = tasks.find(t => t.id === sub.taskId);
+            return (
+              <div key={sub.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="p-3 border-b border-gray-50 bg-gray-50 flex justify-between items-center">
+                  <span className="text-sm font-bold text-gray-700">{sub.userName}</span>
+                  <span className="text-xs text-gray-400">{sub.time.split(' ')[0]}</span>
+                </div>
+                <div className="p-4">
+                  <p className="text-xs text-gray-500 mb-2 font-bold">关联任务: {task?.title}</p>
+                  
+                  {sub.note && (
+                    <div className="bg-yellow-50 p-2 rounded text-xs text-gray-600 mb-3 border border-yellow-100 flex items-start gap-1">
+                        <FileText size={12} className="mt-0.5 shrink-0 text-yellow-600"/>
+                        <span><span className="font-bold">员工备注：</span>{sub.note}</span>
+                    </div>
+                  )}
+
+                  <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center mb-4 border border-dashed border-gray-300 relative group">
+                    <div className="text-gray-400 text-xs flex flex-col items-center">
+                       <ImageIcon size={24} className="mb-1"/>
+                       [截图凭证预览]
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => onAudit(sub.id, 'rejected')}
+                      className="flex-1 py-2 border border-red-200 text-red-500 rounded-lg text-sm font-medium hover:bg-red-50"
+                    >
+                      驳回
+                    </button>
+                    <button 
+                      onClick={() => onAudit(sub.id, 'approved')}
+                      className="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 shadow-md shadow-indigo-200"
+                    >
+                      通过
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 任务管理组件：增删改查
+function AdminTaskMgr({ tasks, onCreateTask, onUpdateTask, onDeleteTask }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [taskFilter, setTaskFilter] = useState('active'); // active, closed
+  const [formData, setFormData] = useState({ id: null, title: '', desc: '', points: 10, deadline: '', type: '朋友圈', taskImage: null });
+
+  const resetForm = () => {
+    setFormData({ id: null, title: '', desc: '', points: 10, deadline: '', type: '朋友圈', taskImage: null });
+    setIsEditing(false);
+    setShowForm(false);
+  };
+
+  const startEdit = (task) => {
+    setFormData(task);
+    setIsEditing(true);
+    setShowForm(true);
+  };
+
+  const handleSubmit = () => {
+    if(!formData.title) return;
+    const taskToSave = {
+        ...formData,
+        // 如果是新任务，确保状态是 active
+        status: isEditing ? formData.status : 'active'
+    };
+
+    if (isEditing) {
+      onUpdateTask(taskToSave);
+    } else {
+      onCreateTask(taskToSave);
+    }
+    resetForm();
+  };
+
+  const displayedTasks = tasks.filter(t => taskFilter === 'active' ? t.status === 'active' : t.status === 'closed');
+
+  return (
+    <div className="p-4 pb-20">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-bold text-gray-800">任务管理</h2>
+        <button 
+          onClick={() => { resetForm(); setShowForm(true); }}
+          className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm flex items-center gap-1 shadow hover:bg-indigo-700"
+        >
+          <Plus size={16} /> 发布任务
+        </button>
+      </div>
+
+      <div className="flex bg-white p-1 rounded-lg shadow-sm border border-gray-100 mb-4">
+        <button onClick={() => setTaskFilter('active')} className={`flex-1 py-1.5 text-xs font-medium rounded transition ${taskFilter === 'active' ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500'}`}>
+            进行中
+        </button>
+        <button onClick={() => setTaskFilter('closed')} className={`flex-1 py-1.5 text-xs font-medium rounded transition ${taskFilter === 'closed' ? 'bg-gray-200 text-gray-700' : 'text-gray-500'}`}>
+            已结束/过期
+        </button>
+      </div>
+
+      {showForm && (
+        <div className="bg-white p-4 rounded-xl shadow-lg border border-indigo-100 mb-6 animate-fade-in-down z-20 relative">
+          <div className="flex justify-between items-center mb-3">
+             <h3 className="text-sm font-bold text-gray-800">{isEditing ? '编辑任务' : '新建任务'}</h3>
+             <button onClick={resetForm} className="text-gray-400 hover:text-gray-600"><XCircle size={18} /></button>
+          </div>
+          <div className="space-y-3">
+            <input 
+              placeholder="任务标题" 
+              className="w-full text-sm border p-2 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+              value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
+            />
+            <textarea 
+              placeholder="任务描述..." 
+              className="w-full text-sm border p-2 rounded h-20 focus:ring-1 focus:ring-indigo-500 outline-none"
+              value={formData.desc} onChange={e => setFormData({...formData, desc: e.target.value})}
+            />
+            {/* 模拟上传图片 */}
+            <div 
+                className={`border-2 border-dashed rounded p-3 text-center cursor-pointer ${formData.taskImage ? 'border-indigo-400 bg-indigo-50' : 'border-gray-300'}`}
+                onClick={() => setFormData({...formData, taskImage: formData.taskImage ? null : 'placeholder_url'})}
+            >
+                {formData.taskImage ? (
+                    <span className="text-xs text-indigo-600 flex items-center justify-center gap-1"><CheckCircle size={12}/> 已添加示例图 (点击移除)</span>
+                ) : (
+                    <span className="text-xs text-gray-400 flex items-center justify-center gap-1"><ImageIcon size={12}/> 添加任务示例图 (选填)</span>
+                )}
+            </div>
+
+            <div className="flex gap-2">
+              <input 
+                type="number" placeholder="积分" 
+                className="w-1/3 text-sm border p-2 rounded"
+                value={formData.points} onChange={e => setFormData({...formData, points: parseInt(e.target.value)})}
+              />
+              <select 
+                className="w-2/3 text-sm border p-2 rounded"
+                value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}
+              >
+                <option>朋友圈</option>
+                <option>社群</option>
+                <option>私信</option>
+                <option>其他</option>
+              </select>
+            </div>
+            <input 
+                type="date" 
+                className="w-full text-sm border p-2 rounded"
+                value={formData.deadline} onChange={e => setFormData({...formData, deadline: e.target.value})}
+            />
+            <button onClick={handleSubmit} className="w-full bg-black text-white py-2 rounded-lg text-sm font-medium hover:opacity-90">
+              {isEditing ? '保存修改' : '确认发布'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-3">
+        {displayedTasks.length === 0 ? <p className="text-center text-gray-400 text-sm py-4">暂无{taskFilter === 'active' ? '进行中' : '已结束'}任务</p> : displayedTasks.map(task => (
+          <div key={task.id} className={`bg-white p-4 rounded-xl border border-gray-200 flex justify-between items-start ${task.status === 'closed' ? 'opacity-70 bg-gray-50' : ''}`}>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                 <div className="font-bold text-gray-800 text-sm">{task.title}</div>
+                 {task.taskImage && <ImageIcon size={12} className="text-indigo-400"/>}
+              </div>
+              <div className="text-xs text-gray-500 mb-1 line-clamp-2">{task.desc}</div>
+              <div className="text-xs text-indigo-600 font-medium flex items-center gap-2">
+                <span>{task.points}分</span>
+                <span>|</span>
+                <span>{task.type}</span>
+                <span>|</span>
+                <span className={task.status === 'closed' ? 'text-red-500' : ''}>截止: {task.deadline}</span>
+              </div>
+            </div>
+            <div className="flex gap-2 ml-2">
+              <button onClick={() => startEdit(task)} className="p-1.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200">
+                <Edit size={14} />
+              </button>
+              <button onClick={() => onDeleteTask(task.id)} className="p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100">
+                <Trash2 size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// 人员管理组件：增删改查
+function AdminUserMgr({ users, onAddUser, onUpdateUser, onDeleteUser }) {
+  const [showForm, setShowForm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({ id: '', name: '', role: 'employee', password: '' });
+
+  const resetForm = () => {
+    setFormData({ id: '', name: '', role: 'employee', password: '' });
+    setIsEditing(false);
+    setShowForm(false);
+  };
+
+  const startEdit = (user) => {
+    setFormData({ ...user, password: '' }); // 编辑时不自动回填密码，除非想修改
+    setIsEditing(true);
+    setShowForm(true);
+  };
+
+  const handleSubmit = () => {
+    if (!formData.id || !formData.name) return;
+    
+    // 如果是编辑模式且密码为空，则不修改密码
+    const userToSubmit = { ...formData };
+    if (isEditing && !userToSubmit.password) {
+        delete userToSubmit.password;
+    }
+
+    if (isEditing) {
+      onUpdateUser(userToSubmit);
+    } else {
+      onAddUser(userToSubmit);
+    }
+    resetForm();
+  };
+
+  // 过滤掉当前管理员自己，防止误删
+  const managedUsers = users.filter(u => u.id !== 'admin');
+
+  return (
+    <div className="p-4 pb-20">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-bold text-gray-800">人员管理</h2>
+        <button 
+          onClick={() => { resetForm(); setShowForm(true); }}
+          className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm flex items-center gap-1 shadow hover:bg-indigo-700"
+        >
+          <Plus size={16} /> 添加员工
+        </button>
+      </div>
+
+      {showForm && (
+        <div className="bg-white p-4 rounded-xl shadow-lg border border-indigo-100 mb-6 animate-fade-in-down">
+          <div className="flex justify-between items-center mb-3">
+             <h3 className="text-sm font-bold text-gray-800">{isEditing ? '编辑员工' : '录入新员工'}</h3>
+             <button onClick={resetForm} className="text-gray-400 hover:text-gray-600"><XCircle size={18} /></button>
+          </div>
+          <div className="space-y-3">
+            <input 
+              placeholder="姓名" 
+              className="w-full text-sm border p-2 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+              value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+            />
+            <input 
+              placeholder="工号 (ID)" 
+              className="w-full text-sm border p-2 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+              value={formData.id} 
+              onChange={e => setFormData({...formData, id: e.target.value})}
+              disabled={isEditing} // 工号通常作为主键不可修改
+            />
+             <div className="relative">
+                <input 
+                  placeholder={isEditing ? "密码 (留空则不修改)" : "密码 (默认为 123456)"}
+                  className="w-full text-sm border p-2 rounded focus:ring-1 focus:ring-indigo-500 outline-none"
+                  value={formData.password} 
+                  onChange={e => setFormData({...formData, password: e.target.value})}
+                />
+                <Lock size={14} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            </div>
+            <select 
+              className="w-full text-sm border p-2 rounded"
+              value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})}
+            >
+              <option value="employee">普通员工</option>
+              <option value="admin">管理员</option>
+            </select>
+            <button onClick={handleSubmit} className="w-full bg-black text-white py-2 rounded-lg text-sm font-medium hover:opacity-90">
+              {isEditing ? '保存修改' : '确认添加'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        {managedUsers.map((u) => (
+          <div key={u.id} className="p-4 border-b border-gray-100 flex justify-between items-center last:border-0">
+            <div className="flex items-center gap-3">
+               <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-xl">
+                 {u.avatar || '👤'}
+               </div>
+               <div>
+                 <div className="font-medium text-gray-800 text-sm">{u.name}</div>
+                 <div className="text-xs text-gray-500">工号: {u.id} | {u.role === 'admin' ? '管理员' : '员工'}</div>
+               </div>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => startEdit(u)} className="p-2 text-gray-400 hover:text-indigo-600 bg-gray-50 rounded-lg">
+                <Edit size={16} />
+              </button>
+              <button onClick={() => onDeleteUser(u.id)} className="p-2 text-gray-400 hover:text-red-500 bg-gray-50 rounded-lg">
+                <Trash2 size={16} />
+              </button>
+            </div>
+          </div>
+        ))}
+        {managedUsers.length === 0 && (
+          <div className="p-6 text-center text-gray-400 text-sm">暂无员工数据</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AdminStats({ users }) {
+  return (
+    <div className="p-4 pb-20">
+      <h2 className="text-lg font-bold text-gray-800 mb-4">数据报表</h2>
+      <div className="bg-indigo-600 rounded-xl p-6 text-white mb-4 shadow-lg">
+        <div className="text-indigo-200 text-sm mb-1">团队总积分产出</div>
+        <div className="text-3xl font-bold">{users.reduce((acc, curr) => acc + curr.points, 0)}</div>
+      </div>
+
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-gray-50 text-gray-500">
+            <tr>
+              <th className="p-3">姓名</th>
+              <th className="p-3">工号</th>
+              <th className="p-3 text-right">积分</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.filter(u => u.role !== 'admin').map((u, i) => (
+              <tr key={u.id} className="border-t border-gray-100">
+                <td className="p-3 font-medium">{u.name}</td>
+                <td className="p-3 text-gray-500">{u.id}</td>
+                <td className="p-3 text-right font-bold text-indigo-600">{u.points}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="p-3 border-t border-gray-100 text-center">
+          <button className="text-xs text-indigo-600 font-medium flex items-center justify-center gap-1 w-full">
+            <DownloadIcon size={12}/> 导出 Excel 报表
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- 底部导航 ---
+function BottomNav({ role, activeTab, setActiveTab, pendingCount }) {
+  const navItemClass = (tabName) => 
+    `flex flex-col items-center justify-center w-full h-full space-y-1 ${activeTab === tabName ? (role === 'admin' ? 'text-indigo-600' : 'text-blue-600') : 'text-gray-400'}`;
+
+  if (role === 'admin') {
+    return (
+      <div className="h-16 bg-white border-t border-gray-200 flex justify-around items-center shrink-0 z-20">
+        <button onClick={() => setActiveTab('audit')} className={navItemClass('audit')}>
+          <div className="relative">
+            <CheckCircle size={24} />
+            {pendingCount > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center">{pendingCount}</span>}
+          </div>
+          <span className="text-[10px]">审核</span>
+        </button>
+        <button onClick={() => setActiveTab('tasks')} className={navItemClass('tasks')}>
+          <ClipboardList size={24} />
+          <span className="text-[10px]">任务</span>
+        </button>
+        <button onClick={() => setActiveTab('users')} className={navItemClass('users')}>
+          <Users size={24} />
+          <span className="text-[10px]">人员</span>
+        </button>
+        <button onClick={() => setActiveTab('stats')} className={navItemClass('stats')}>
+          <BarChart3 size={24} />
+          <span className="text-[10px]">报表</span>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-16 bg-white border-t border-gray-200 flex justify-around items-center shrink-0 z-20">
+      <button onClick={() => setActiveTab('tasks')} className={navItemClass('tasks')}>
+        <ClipboardList size={24} />
+        <span className="text-[10px]">任务大厅</span>
+      </button>
+      <button onClick={() => setActiveTab('rank')} className={navItemClass('rank')}>
+        <Trophy size={24} />
+        <span className="text-[10px]">龙虎榜</span>
+      </button>
+      <button onClick={() => setActiveTab('profile')} className={navItemClass('profile')}>
+        <User size={24} />
+        <span className="text-[10px]">我的</span>
+      </button>
+    </div>
+  );
+}
+
+// 简单的下载图标组件
+const DownloadIcon = ({size}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="7 10 12 15 17 10" />
+    <line x1="12" y1="15" x2="12" y2="3" />
+  </svg>
+);
