@@ -1,34 +1,55 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { MOCK_USERS, INITIAL_TASKS, INITIAL_SUBMISSIONS } from '../data/mock';
+import api from '../utils/api';
+import { useAuth } from './AuthContext';
 
 const StoreContext = createContext(null);
 
 export const StoreProvider = ({ children }) => {
-    const [users, setUsers] = useState(MOCK_USERS);
-    const [tasks, setTasks] = useState(INITIAL_TASKS);
-    const [submissions, setSubmissions] = useState(INITIAL_SUBMISSIONS);
-    const [currentUser, setCurrentUser] = useState(null);
+    const { user } = useAuth();
+    const [users, setUsers] = useState([]);
+    const [tasks, setTasks] = useState([]);
+    const [submissions, setSubmissions] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // Initialize expiry check
+    const fetchData = async () => {
+        if (!user) return; // Don't fetch if not logged in
+        try {
+            setLoading(true);
+            const [usersRes, tasksRes, submissionsRes] = await Promise.all([
+                api.get('/users/leaderboard'), // Everyone needs leaderboard
+                api.get('/tasks'),
+                api.get('/submissions')
+            ]);
+
+            setUsers(usersRes.data);
+            setTasks(tasksRes.data);
+            setSubmissions(submissionsRes.data);
+        } catch (error) {
+            console.error('Failed to fetch data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchAdminData = async () => {
+        if (!user || user.role !== 'admin') return;
+        try {
+            // Admin might need full user list, handled by component or here?
+            // Let's rely on components to fetch specific admin data if needed, or put it here.
+            // For now, let's keep it simple. Leaderboard is mostly what's needed globally.
+        } catch (e) { console.error(e); }
+    }
+
     useEffect(() => {
-        const checkExpiry = () => {
-            const today = new Date().toISOString().split('T')[0];
-            setTasks(prev => prev.map(task => {
-                if (task.status === 'active' && task.deadline < today) {
-                    return { ...task, status: 'closed' };
-                }
-                return task;
-            }));
-        };
-        checkExpiry();
-    }, []);
+        fetchData();
+    }, [user]);
+
+    // Actions
+    const refreshData = fetchData;
 
     return (
         <StoreContext.Provider value={{
-            users, setUsers,
-            tasks, setTasks,
-            submissions, setSubmissions,
-            currentUser, setCurrentUser
+            users, tasks, submissions, loading, refreshData
         }}>
             {children}
         </StoreContext.Provider>

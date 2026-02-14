@@ -4,7 +4,7 @@ import { Clock, CheckCircle, XCircle, Upload, Image as ImageIcon } from 'lucide-
 export default function TaskCard({ task, status, onSubmit }) {
     const [isExpanding, setIsExpanding] = useState(false);
     const [note, setNote] = useState('');
-    const [hasImage, setHasImage] = useState(false); // 模拟是否有图片上传
+    const [hasImage, setHasImage] = useState(null); // File object
 
     const handleSubmit = () => {
         onSubmit(task.id, note, hasImage);
@@ -65,19 +65,25 @@ export default function TaskCard({ task, status, onSubmit }) {
                     <div className="space-y-3">
                         <div>
                             <label className="text-xs font-medium text-gray-600 mb-1 block">1. 上传截图凭证</label>
-                            <button
-                                onClick={() => setHasImage(!hasImage)}
-                                className={`w-full h-16 border-2 border-dashed rounded-lg flex flex-col items-center justify-center transition ${hasImage ? 'border-green-400 bg-green-50' : 'border-gray-300 bg-white hover:border-blue-400'}`}
-                            >
+                            <div className="w-full h-16 border-2 border-dashed rounded-lg flex flex-col items-center justify-center transition relative overflow-hidden bg-gray-50 border-gray-300 hover:border-blue-400">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    onChange={(e) => setHasImage(e.target.files[0])}
+                                />
                                 {hasImage ? (
-                                    <div className="text-green-600 flex items-center gap-1 text-xs font-bold"><CheckCircle size={14} /> 已选择图片</div>
+                                    <div className="text-green-600 flex items-center gap-1 text-xs font-bold">
+                                        <CheckCircle size={14} />
+                                        已选择: {hasImage.name.substring(0, 15)}...
+                                    </div>
                                 ) : (
                                     <>
                                         <ImageIcon className="text-gray-400 mb-1" size={20} />
                                         <span className="text-xs text-gray-400">点击上传图片</span>
                                     </>
                                 )}
-                            </button>
+                            </div>
                         </div>
 
                         <div>

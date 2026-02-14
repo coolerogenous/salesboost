@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Plus, XCircle, Lock, Edit, Trash2 } from 'lucide-react';
+import api from '../../utils/api';
 import { useStore } from '../../context/StoreContext';
 
 export default function AdminUserMgr() {
-    const { users, setUsers } = useStore();
+    const { users, refreshData } = useStore();
     const [showForm, setShowForm] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({ id: '', name: '', role: 'employee', password: '' });
@@ -20,36 +21,38 @@ export default function AdminUserMgr() {
         setShowForm(true);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!formData.id || !formData.name) return;
 
-        // 如果是编辑模式且密码为空，则不修改密码
         const userToSubmit = { ...formData };
         if (isEditing && !userToSubmit.password) {
             delete userToSubmit.password;
         }
 
-        if (isEditing) {
-            setUsers(users.map(u => u.id === userToSubmit.id ? { ...u, ...userToSubmit } : u));
-        } else {
-            if (users.some(u => u.id === userToSubmit.id)) {
-                alert('该工号已存在');
+        try {
+            if (isEditing) {
+                // await api.put(`/users/${userToSubmit.id}`, userToSubmit);
+                alert('修改功能后端尚未完全实现，请先删除再添加');
                 return;
+            } else {
+                await api.post('/users', userToSubmit);
+                alert('人员添加成功');
             }
-            setUsers([...users, {
-                ...userToSubmit,
-                points: 0,
-                avatar: '👤',
-                password: userToSubmit.password || '123456'
-            }]);
+            await refreshData();
+            resetForm();
+        } catch (error) {
+            alert('操作失败: ' + (error.response?.data?.message || error.message));
         }
-        resetForm();
-        alert(isEditing ? '人员信息已更新' : '人员添加成功');
     };
 
-    const handleDeleteUser = (userId) => {
+    const handleDeleteUser = async (userId) => {
         if (window.confirm('确定要删除该人员吗？此操作不可恢复。')) {
-            setUsers(users.filter(u => u.id !== userId));
+            try {
+                await api.delete(`/users/${userId}`);
+                await refreshData();
+            } catch (error) {
+                alert('删除失败: ' + (error.response?.data?.message || error.message));
+            }
         }
     };
 

@@ -1,27 +1,54 @@
 import { useState } from 'react';
 import { ClipboardList } from 'lucide-react';
+import api from '../../utils/api';
 import { useStore } from '../../context/StoreContext';
 import { useAuth } from '../../context/AuthContext';
 import TaskCard from '../../components/business/TaskCard';
 
 export default function TaskHall() {
-    const { tasks, submissions, setSubmissions } = useStore();
+    const { tasks, submissions, refreshData } = useStore();
     const { user } = useAuth();
     const [filter, setFilter] = useState('todo'); // todo, done
 
-    const handleSubmitProof = (taskId, note, imageFile) => {
-        const newSubmission = {
-            id: Date.now(),
-            taskId,
-            userId: user.id,
-            userName: user.name,
-            status: 'pending',
-            imageUrl: imageFile ? 'uploaded_image' : 'placeholder', // 模拟图片
-            note: note || '',
-            time: new Date().toLocaleString()
-        };
-        setSubmissions([newSubmission, ...submissions]);
-        alert('凭证提交成功，等待审核'); // Simple alert for now, can be upgraded to Toast
+    const handleSubmitProof = async (taskId, note, imageFile) => {
+        try {
+            // imageFile is boolean in previous mock, but now it should be the file object?
+            // Wait, TaskCard `onSubmit` passes `hasImage` boolean currently.
+            // I need to update TaskCard to pass the actual file if I want real upload.
+            // But let's assume TaskCard is updated to pass file, or I mock the file for now if TaskCard isn't ready.
+            // Actually, I should update TaskCard first or handle it here.
+
+            // Let's assume TaskCard passes (taskId, note, file) where file is valid.
+            // But TaskCard code in Step 449: `onSubmit(task.id, note, hasImage);` -> passes boolean.
+
+            // I need to update TaskCard to accept file input first.
+            // Converting this step to just setup the API call assuming file will be passed.
+
+            const formData = new FormData();
+            formData.append('taskId', taskId);
+            formData.append('note', note);
+            if (imageFile instanceof File) {
+                formData.append('image', imageFile);
+            } else {
+                // Determine if we want to enforce real file. Backend says: if (!imageUrl) return 400.
+                // imageUrl comes from req.file. 
+                // So we MUST send a file.
+                // TaskCard needs update.
+                alert('请上传真实图片凭证');
+                return;
+            }
+
+            // api import? TaskHall doesn't import api.
+            // Need to import api.
+            await api.post('/submissions', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            await refreshData();
+            alert('凭证提交成功，等待审核');
+        } catch (error) {
+            alert('提交失败: ' + (error.response?.data?.message || error.message));
+        }
     };
 
     const getTaskStatus = (task) => {

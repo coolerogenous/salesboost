@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Plus, XCircle, CheckCircle, ImageIcon, Edit, Trash2 } from 'lucide-react';
+import api from '../../utils/api';
 import { useStore } from '../../context/StoreContext';
 
 export default function AdminTaskMgr() {
-    const { tasks, setTasks } = useStore();
+    const { tasks, refreshData } = useStore();
     const [isEditing, setIsEditing] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [taskFilter, setTaskFilter] = useState('active'); // active, closed
@@ -21,26 +22,38 @@ export default function AdminTaskMgr() {
         setShowForm(true);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!formData.title) return;
-        const taskToSave = {
-            ...formData,
-            // 如果是新任务，确保状态是 active
-            status: isEditing ? formData.status : 'active'
-        };
 
-        if (isEditing) {
-            setTasks(tasks.map(t => t.id === taskToSave.id ? taskToSave : t));
-        } else {
-            setTasks([{ ...taskToSave, id: Date.now(), status: 'active' }, ...tasks]);
+        try {
+            const taskData = {
+                ...formData,
+                status: isEditing ? formData.status : 'active'
+            };
+
+            if (isEditing) {
+                await api.put(`/tasks/${formData.id}`, taskData);
+                alert('任务更新成功');
+            } else {
+                await api.post('/tasks', taskData);
+                alert('任务发布成功');
+            }
+
+            await refreshData();
+            resetForm();
+        } catch (error) {
+            alert('操作失败: ' + (error.response?.data?.message || error.message));
         }
-        resetForm();
-        alert(isEditing ? '任务更新成功' : '任务发布成功');
     };
 
-    const handleDeleteTask = (taskId) => {
+    const handleDeleteTask = async (taskId) => {
         if (window.confirm('确定要删除这个任务吗？')) {
-            setTasks(tasks.filter(t => t.id !== taskId));
+            try {
+                await api.delete(`/tasks/${taskId}`);
+                await refreshData();
+            } catch (error) {
+                alert('删除失败: ' + (error.response?.data?.message || error.message));
+            }
         }
     };
 

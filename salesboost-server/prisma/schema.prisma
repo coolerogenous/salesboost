@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id // Employee ID (e.g. "1001")
+  name      String
+  role      String   @default("employee") // "admin" or "employee"
+  points    Int      @default(0)
+  avatar    String?  @default("👤")
+  password  String   // Hashed password
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  submissions Submission[]
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  title       String
+  desc        String
+  points      Int
+  deadline    String   // Format: YYYY-MM-DD
+  type        String   // "朋友圈", "社群", etc.
+  status      String   @default("active") // "active", "closed"
+  taskImage   String?  // URL to example image
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  submissions Submission[]
+}
+
+model Submission {
+  id        Int      @id @default(autoincrement())
+  taskId    Int
+  task      Task     @relation(fields: [taskId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  userName  String   // Vendor redundancy for display speed or join
+  status    String   @default("pending") // "pending", "approved", "rejected"
+  imageUrl  String?
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

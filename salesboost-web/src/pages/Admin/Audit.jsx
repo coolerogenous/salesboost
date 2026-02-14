@@ -1,32 +1,20 @@
 import { CheckCircle, FileText, Image as ImageIcon } from 'lucide-react';
+import api from '../../utils/api';
 import { useStore } from '../../context/StoreContext';
 
 export default function AdminAudit() {
-    const { submissions, setSubmissions, tasks, users, setUsers } = useStore();
+    const { submissions, refreshData, tasks } = useStore();
     const pendingList = submissions.filter(s => s.status === 'pending');
 
-    const handleAudit = (submissionId, status) => {
-        const targetSub = submissions.find(s => s.id === submissionId);
-        if (!targetSub) return;
+    const handleAudit = async (submissionId, status) => {
+        if (!window.confirm(`确定要${status === 'approved' ? '通过' : '驳回'}该申请吗？`)) return;
 
-        // 更新提交状态
-        const updatedSubmissions = submissions.map(s =>
-            s.id === submissionId ? { ...s, status } : s
-        );
-        setSubmissions(updatedSubmissions);
-
-        // 如果通过，加积分
-        if (status === 'approved') {
-            const task = tasks.find(t => t.id === targetSub.taskId);
-            const pointsToAdd = task ? task.points : 0;
-
-            const updatedUsers = users.map(u =>
-                u.id === targetSub.userId ? { ...u, points: u.points + pointsToAdd } : u
-            );
-            setUsers(updatedUsers);
-            alert(`审核通过，${targetSub.userName} 积分 +${pointsToAdd}`);
-        } else {
-            alert('已驳回该申请');
+        try {
+            await api.put(`/submissions/${submissionId}/audit`, { status });
+            await refreshData();
+            alert(status === 'approved' ? '审核通过' : '已驳回');
+        } catch (error) {
+            alert('操作失败: ' + (error.response?.data?.message || error.message));
         }
     };
 
