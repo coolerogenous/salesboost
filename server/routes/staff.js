@@ -6,20 +6,9 @@ const staffController = require('../controllers/staffController');
 const auth = require('../middlewares/auth');
 const role = require('../middlewares/role');
 
-// 文件上传配置
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, path.resolve(__dirname, '../uploads'));
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, 'sub-' + uniqueSuffix + ext);
-    }
-});
-
+// 文件上传配置 - 使用内存存储，上传到阿里云 OSS
 const upload = multer({
-    storage,
+    storage: multer.memoryStorage(),
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const allowed = /jpeg|jpg|png|gif|webp/;

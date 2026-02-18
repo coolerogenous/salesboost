@@ -21,9 +21,10 @@ exports.createTask = async (req, res) => {
             created_by: req.user.id
         };
 
-        // 处理上传的图片
+        // 处理上传的图片 -> 阿里云 OSS
         if (req.file) {
-            taskData.image_url = '/uploads/' + req.file.filename;
+            const { uploadToOSS } = require('../utils/oss');
+            taskData.image_url = await uploadToOSS(req.file.buffer, req.file.originalname, 'task');
         }
 
         const task = await Task.create(taskData);

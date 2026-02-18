@@ -94,7 +94,8 @@ exports.submitTask = async (req, res) => {
         };
 
         if (req.file) {
-            submissionData.image_url = '/uploads/' + req.file.filename;
+            const { uploadToOSS } = require('../utils/oss');
+            submissionData.image_url = await uploadToOSS(req.file.buffer, req.file.originalname, 'sub');
         }
 
         const submission = await Submission.create(submissionData);
