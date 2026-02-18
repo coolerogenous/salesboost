@@ -4,9 +4,12 @@ const path = require('path');
 const fs = require('fs');
 
 // 加载环境变量
-require('dotenv').config({
-    path: path.resolve(__dirname, `.env.${process.env.NODE_ENV || 'development'}`)
-});
+const envPath = path.resolve(__dirname, `.env.${process.env.NODE_ENV || 'development'}`);
+if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+} else {
+    require('dotenv').config(); // 默认加载 .env
+}
 
 const { sequelize, User } = require('./models');
 const bcrypt = require('bcryptjs');
@@ -70,8 +73,8 @@ async function seedData() {
 // 启动
 const PORT = process.env.PORT || 5000;
 
-sequelize.sync({ alter: false }).then(async () => {
-    console.log('✅ 数据库连接成功，表已同步');
+sequelize.sync().then(async () => {
+    console.log(`✅ 数据库 [${process.env.DB_NAME}] 连接成功，表已确认/同步`);
     await seedData();
 
     app.listen(PORT, () => {

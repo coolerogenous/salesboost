@@ -1,8 +1,13 @@
 const { Sequelize } = require('sequelize');
 const path = require('path');
-require('dotenv').config({
-    path: path.resolve(__dirname, `../.env.${process.env.NODE_ENV || 'development'}`)
-});
+const fs = require('fs');
+
+const envPath = path.resolve(__dirname, `../.env.${process.env.NODE_ENV || 'development'}`);
+if (fs.existsSync(envPath)) {
+    require('dotenv').config({ path: envPath });
+} else {
+    require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+}
 
 const sequelize = new Sequelize(
     process.env.DB_NAME,
